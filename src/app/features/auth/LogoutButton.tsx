@@ -1,5 +1,6 @@
 "use client";
 
+import Button from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
 
 export default function LogoutButton() {
@@ -12,11 +13,8 @@ export default function LogoutButton() {
   }
 
   return (
-    <button
-      onClick={handleLogout}
-      className="chamfer hud-label border border-line bg-ink-2 px-5 py-2 text-gold transition hover:text-gold-bright"
-    >
-      Log out
-    </button>
+   <Button variant="ghost" onClick={handleLogout}>
+    Log Out
+   </Button>
   );
 }

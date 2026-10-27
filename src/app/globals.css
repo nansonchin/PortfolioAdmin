@@ -19,7 +19,9 @@
 
 :root {
   --cut: 14px;
+  --cut-inner:calc(var(--cut) - 0.586px)
 }
+
 
 html,
 body {
@@ -46,6 +48,17 @@ body {
       100% 100%,
       var(--cut) 100%,
       0 calc(100% - var(--cut))
+    );
+  }
+
+.chamfer-inner {
+    clip-path: polygon(
+      0 0,
+      calc(100% - var(--cut-inner)) 0,
+      100% var(--cut-inner),
+      100% 100%,
+      var(--cut-inner) 100%,
+      0 calc(100% - var(--cut-inner))
     );
   }
 
