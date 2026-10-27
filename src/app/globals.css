@@ -1,26 +1,90 @@
+
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ink: #0a0908;
+  --color-ink-2: #12100d;
+  --color-gold: #c9a96e;
+  --color-gold-bright: #d8bd83;
+  --color-gold-dim: #8c7a52;
+  --color-paper: #e8e2d0;
+  --color-muted: #8a8578;
+  --color-alert: #c8452f;
+  --color-line: rgb(201 169 110 / 0.18);
+
+  --font-display: var(--nf-display), "Noto Serif SC", "Times New Roman", serif;
+  --font-system: var(--nf-system), "Noto Sans SC", ui-monospace, Menlo, Consolas, monospace;
+  --font-body: var(--nf-body), "Noto Sans SC", system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --cut: 14px;
+}
+
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+::selection {
+  background: var(--color-gold-bright);
+  color: var(--color-ink);
+}
+
+@layer components {
+
+  .chamfer {
+    clip-path: polygon(
+      0 0,
+      calc(100% - var(--cut)) 0,
+      100% var(--cut),
+      100% 100%,
+      var(--cut) 100%,
+      0 calc(100% - var(--cut))
+    );
+  }
+
+  .halftone {
+    background-image: radial-gradient(
+      circle,
+      rgb(201 169 110 / 0.16) 1px,
+      transparent 1.5px
+    );
+    background-size: 8px 8px;
+  }
+
+  .scanlines {
+    position: relative;
+  }
+  .scanlines::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0) 0,
+      rgb(0 0 0 / 0) 3px,
+      rgb(0 0 0 / 0.22) 4px
+    );
+  }
+
+  .ink-wash {
+    background-image:
+      radial-gradient(60% 50% at 15% 10%, rgb(201 169 110 / 0.14), transparent 70%),
+      radial-gradient(45% 40% at 90% 35%, rgb(140 122 82 / 0.12), transparent 70%),
+      radial-gradient(70% 60% at 50% 110%, rgb(201 169 110 / 0.10), transparent 70%);
+  }
+
+  .hud-label {
+    font-family: var(--font-system);
+    font-size: 0.6875rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
 }
