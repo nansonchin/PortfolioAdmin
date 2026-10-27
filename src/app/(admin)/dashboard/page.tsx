@@ -1,11 +1,14 @@
 import LogoutButton from "@/app/features/auth/LogoutButton";
 import { getSession } from "@/app/lib/auth/getSession";
+import { listProjects } from "@/lib/db/projectRepository";
 import { redirect } from "next/navigation";
 export default async function DashboardPage() {
   const session = await getSession();
   if (!session) redirect("/login");
 
   const expiresAt = new Date(session.exp * 1000).toLocaleString();
+
+  const projects = await listProjects();
   return (
     <main className="halftone ink-wash scanlines min-h-screen p-8">
       <section className="chamfer mx-auto max-w-xl bg-ink-2 p-10">
@@ -22,6 +25,17 @@ export default async function DashboardPage() {
             <dd>{expiresAt}</dd>
           </div>
         </dl>
+
+        <ul className="mt-6 space-y-1 text-sm text-muted">
+          {projects.map((project)=>(
+            <li key={project.id}>
+                <span className="hud-label text-gold-dim">
+                  {String(project.sortOrder).padStart(2,"0")}
+                </span>
+                {project.title}
+            </li>
+          ))}
+        </ul>
 
         <div className="mt-8">
           <LogoutButton />
