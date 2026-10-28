@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
-import { updateProjectFlags } from "@/lib/db/projectRepository";
+import { DuplicateSlugError, updateProjectBasic, updateProjectFlags } from "@/lib/db/projectRepository";
 import { toListItem } from "@/features/projects/listItem";
 import type { ProjectFlagsPatch } from "@/types/project";
 import { getSession } from "@/app/lib/auth/getSession";
+import { issuesToFieldErrors, projectBasicSchema } from "@/lib/validation/projectBasic";
+import { toFormValues } from "@/features/projects/basicForm";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -58,5 +60,56 @@ export async function PATCH(request: Request, { params }: RouteContext) {
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Update failed" }, { status: 500 });
+  }
+}
+
+export async function PUT(request: Request, { params }: RouteContext) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
+
+  const result = projectBasicSchema.safeParse(body);
+
+  if (!result.success) {
+    return NextResponse.json(
+      {
+        error: "Validation failed",
+        fieldErrors: issuesToFieldErrors(result.error.issues),
+      },
+      { status: 422 },
+    );
+  }
+
+  try {
+    const updated = await updateProjectBasic(id, result.data);
+
+    if (!updated) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ values: toFormValues(updated) });
+  } catch (error) {
+    if (error instanceof DuplicateSlugError) {
+      return NextResponse.json(
+        {
+          error: "Slug already in use",
+          fieldErrors: { slug: "This slug is already used by another project" },
+        },
+        { status: 409 },
+      );
+    }
+
+    console.error(error);
+    return NextResponse.json({ error: "Save failed" }, { status: 500 });
   }
 }

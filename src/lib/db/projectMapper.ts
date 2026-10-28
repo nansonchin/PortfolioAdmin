@@ -1,6 +1,7 @@
 import type {
   AdminProject,
   ProjectArchitecture,
+  ProjectBasic,
   ProjectGalleryImage,
   ProjectStatus,
   ProjectStory,
@@ -87,5 +88,20 @@ export function projectToRow(project: AdminProject): ProjectRowInput {
     architecture: project.architecture ?? null,
     status: project.status,
     sort_order: project.sortOrder,
+  };
+}
+
+export function basicToRowPatch(input: ProjectBasic): Partial<ProjectRowInput> {
+  return {
+    title: input.title,
+    slug: input.slug,
+    summary: input.summary,
+    description: input.description,
+    year: input.year,
+    category: input.category,
+    github_url: input.githubUrl,
+    demo_url: input.demoUrl || null,
+    featured: input.featured,
+    status: input.status,
   };
 }
