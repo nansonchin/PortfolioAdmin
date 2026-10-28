@@ -62,3 +62,5 @@ export interface AdminProject extends Project {
   status: ProjectStatus;
   sortOrder: number;
 }
+
+export type ProjectFlagsPatch = Partial<Pick<AdminProject, "featured" | "status">>
