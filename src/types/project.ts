@@ -64,3 +64,9 @@ export interface AdminProject extends Project {
 }
 
 export type ProjectFlagsPatch = Partial<Pick<AdminProject, "featured" | "status">>
+
+export type ProjectBasic = Pick<
+  Project,
+  "title" | "slug" | "summary" | "description" | "year" | "category" | "githubUrl" | "demoUrl"
+> &
+  Pick<AdminProject, "featured" | "status">;
