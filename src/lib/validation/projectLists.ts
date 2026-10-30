@@ -17,12 +17,12 @@ function dedupeIgnoreCase(items: string[]): string[] {
   });
 }
 
-const textList = z
+export const textList = z
   .array(z.string().max(500, "Each item can have at most 500 characters"))
   .max(30, "At most 30 items")
   .transform(cleanItems);
 
-const tagList = z
+export const tagList = z
   .array(z.string().max(40, "Each tag can have at most 40 characters"))
   .max(30, "At most 30 tags")
   .transform((items) => dedupeIgnoreCase(cleanItems(items)));

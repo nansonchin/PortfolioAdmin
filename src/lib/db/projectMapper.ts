@@ -116,3 +116,7 @@ export function listsToRowPatch(input: ProjectLists): Partial<ProjectRowInput> {
     solutions: input.solutions,
   };
 }
+
+export function storyToRowPatch(input:ProjectStory):Partial<ProjectRowInput>{
+  return {story:input}
+}

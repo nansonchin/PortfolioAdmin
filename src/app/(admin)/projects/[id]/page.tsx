@@ -11,6 +11,8 @@ import ProjectBasicForm from "@/features/projects/ProjectBasicform";
 import { getSession } from "@/app/lib/auth/getSession";
 import ProjectListsForm from "@/features/projects/ProjectListsForm";
 import { toListsFormValues } from "@/features/projects/listsForm";
+import ProjectStoryForm from "@/features/projects/ProjectStoryForm";
+import { toStoryFormValues } from "@/features/projects/storyForm";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -55,6 +57,14 @@ export default async function EditProjectPage({ params }: PageProps) {
             projectId={project.id}
             initialValues={toListsFormValues(project)}
             technologySuggestions={technologySuggestions}
+          />
+        </Panel>
+
+        <Panel title="Story" tag ="section 3 of 5">
+          <ProjectStoryForm
+            key={project.id}
+            projectId={project.id}
+            initialValues={toStoryFormValues(project)}
           />
         </Panel>
       </div>
