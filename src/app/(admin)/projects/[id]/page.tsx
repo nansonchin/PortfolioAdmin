@@ -1,11 +1,16 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { getProjectById } from "@/lib/db/projectRepository";
+import {
+  getProjectById,
+  listTechnologySuggestion,
+} from "@/lib/db/projectRepository";
 import { toFormValues } from "@/features/projects/basicForm";
 import PageHeader from "@/components/ui/PageHeader";
 import Panel from "@/components/ui/Panel";
 import ProjectBasicForm from "@/features/projects/ProjectBasicform";
 import { getSession } from "@/app/lib/auth/getSession";
+import ProjectListsForm from "@/features/projects/ProjectListsForm";
+import { toListsFormValues } from "@/features/projects/listsForm";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -14,7 +19,11 @@ export default async function EditProjectPage({ params }: PageProps) {
   if (!session) redirect("/login");
 
   const { id } = await params;
-  const project = await getProjectById(id);
+
+  const [project, technologySuggestions] = await Promise.all([
+    getProjectById(id),
+    listTechnologySuggestion(),
+  ]);
 
   if (!project) notFound();
 
@@ -27,15 +36,28 @@ export default async function EditProjectPage({ params }: PageProps) {
         ← Projects
       </Link>
 
-      <PageHeader eyebrow={`02 // Projects / ${project.slug}`} title={project.title} />
+      <PageHeader
+        eyebrow={`02 // Projects / ${project.slug}`}
+        title={project.title}
+      />
+      <div className="space-y-6">
+        <Panel title="Basic info" tag="section 1 of 5">
+          <ProjectBasicForm
+            key={project.id}
+            projectId={project.id}
+            initialValues={toFormValues(project)}
+          />
+        </Panel>
 
-      <Panel title="Basic info" tag="section 1 of 5">
-        <ProjectBasicForm
-          key={project.id}
-          projectId={project.id}
-          initialValues={toFormValues(project)}
-        />
-      </Panel>
+        <Panel title="Details" tag="section 2 of 5">
+          <ProjectListsForm
+            key={project.id}
+            projectId={project.id}
+            initialValues={toListsFormValues(project)}
+            technologySuggestions={technologySuggestions}
+          />
+        </Panel>
+      </div>
     </>
   );
 }

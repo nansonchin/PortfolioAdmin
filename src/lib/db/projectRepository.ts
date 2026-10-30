@@ -1,6 +1,6 @@
-import { AdminProject, ProjectBasic, ProjectFlagsPatch } from "@/types/project";
+import { AdminProject, ProjectBasic, ProjectFlagsPatch, ProjectLists } from "@/types/project";
 import { getSupabase } from "./supabase";
-import { basicToRowPatch, ProjectRow, rowToProject } from "./projectMapper";
+import { basicToRowPatch, listsToRowPatch, ProjectRow, rowToProject } from "./projectMapper";
 
 export async function listProjects():Promise<AdminProject[]>{
     const {data,error} = await getSupabase().from("projects").select("*").order("sort_order",{ascending:true}).returns<ProjectRow[]>()
@@ -59,4 +59,42 @@ export async function updateProjectBasic(
   }
 
   return data ? rowToProject(data) : null;
+}
+
+export async function updateProjectLists(
+    id:string,
+    input:ProjectLists,
+):Promise<AdminProject|null>{
+  const { data, error } = await getSupabase()
+    .from("projects")
+    .update(listsToRowPatch(input))
+    .eq("id", id)
+    .select("*")
+    .maybeSingle<ProjectRow>();    
+    
+    if(error){
+        throw new Error(`Failed to save project : ${error.message}`)
+    }
+
+    return data? rowToProject(data):null
+}
+
+export async function listTechnologySuggestion():Promise<string[]>{
+      const { data, error } = await getSupabase()
+    .from("projects")
+    .select("technologies")
+    .returns<{ technologies: string[] }[]>();
+
+    if(error){
+        throw new Error (`Failed to read technologies : ${error.message}`)
+    }
+
+    const unique = new Map<string,string>()
+
+    for(const tech of data.flatMap((row)=>row.technologies)){
+        const key = tech.toLowerCase()
+        if(!unique.has(key)) unique.set(key,tech)
+    }
+
+    return [...unique.values()].sort((a,b)=>a.localeCompare(b))
 }

@@ -9,117 +9,30 @@ import Toggle from "@/components/ui/Toggle";
 import {
   issuesToFieldErrors,
   projectBasicSchema,
+  validateProjectBasic,
   type ProjectBasicFormValues,
 } from "@/lib/validation/projectBasic";
+import { useSectionForm } from "./hooks/useSectionForm";
+import FormActions from "./FormActions";
 
 type Props = {
-  projectId: string; 
+  projectId: string;
   initialValues: ProjectBasicFormValues;
 };
 
-type Message = { type: "ok" | "error"; text: string };
-
 export default function ProjectBasicForm({ projectId, initialValues }: Props) {
-  const router = useRouter();
+  const form = useSectionForm<ProjectBasicFormValues>({
+    endpoint: `/api/projects/${encodeURIComponent(projectId)}`,
+    initialValues,
+    validate: validateProjectBasic,
+  });
 
+  const {values,errors,setField} = form;
 
-  const [saved, setSaved] = useState(initialValues);
-  const [values, setValues] = useState(initialValues);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<Message | null>(null);
-
-  const dirty = useMemo(
-    () =>
-      (Object.keys(values) as (keyof ProjectBasicFormValues)[]).some(
-        (key) => values[key] !== saved[key],
-      ),
-    [values, saved],
-  );
-
-  useEffect(() => {
-    if (!dirty) return;
-
-    function warn(event: BeforeUnloadEvent) {
-      event.preventDefault();
-    }
-
-    window.addEventListener("beforeunload", warn);
-    return () => window.removeEventListener("beforeunload", warn);
-  }, [dirty]);
-
-  function setField<K extends keyof ProjectBasicFormValues>(
-    key: K,
-    value: ProjectBasicFormValues[K],
-  ) {
-    setValues((current) => ({ ...current, [key]: value }));
-    setErrors((current) => {
-      if (!(key in current)) return current;
-      const next = { ...current };
-      delete next[key as string];
-      return next;
-    });
-    setMessage(null);
-  }
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setMessage(null);
-
-    const parsed = projectBasicSchema.safeParse(values);
-
-    if (!parsed.success) {
-      setErrors(issuesToFieldErrors(parsed.error.issues));
-      setMessage({ type: "error", text: "Please fix the highlighted fields." });
-      return;
-    }
-
-    setErrors({});
-    setSaving(true);
-
-    try {
-      const response = await fetch(`/api/projects/${encodeURIComponent(projectId)}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-
-      const data = (await response.json().catch(() => null)) as {
-        error?: string;
-        fieldErrors?: Record<string, string>;
-        values?: ProjectBasicFormValues;
-      } | null;
-
-      if (!response.ok) {
-        setErrors(data?.fieldErrors ?? {});
-        setMessage({ type: "error", text: data?.error ?? "Save failed" });
-        return;
-      }
-
-      if (data?.values) {
-        setSaved(data.values);
-        setValues(data.values);
-      }
-      setMessage({ type: "ok", text: "Saved." });
-      router.refresh();
-    } catch {
-      setMessage({ type: "error", text: "Network error. Please try again." });
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  function handleDiscard() {
-    setValues(saved);
-    setErrors({});
-    setMessage(null);
-  }
-
-  const slugChanged = values.slug.trim() !== saved.slug;
+  const slugChanged = values.slug.trim() !== form.saved.slug;
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-6">
-
+    <form onSubmit={form.handleSubmit} noValidate className="space-y-6">
       <Field label="Title" htmlFor="title" error={errors.title}>
         <input
           id="title"
@@ -147,8 +60,9 @@ export default function ProjectBasicForm({ projectId, initialValues }: Props) {
         />
         {slugChanged && (
           <p className="mt-2 text-sm text-alert">
-            ⚠ Changing the slug breaks existing links and the Chinese translation
-            (which is stored under the slug) until they are updated too.
+            ⚠ Changing the slug breaks existing links and the Chinese
+            translation (which is stored under the slug) until they are updated
+            too.
           </p>
         )}
       </Field>
@@ -195,14 +109,20 @@ export default function ProjectBasicForm({ projectId, initialValues }: Props) {
         />
       </Field>
 
-      <Field label="Description" htmlFor="description" error={errors.description}>
+      <Field
+        label="Description"
+        htmlFor="description"
+        error={errors.description}
+      >
         <textarea
           id="description"
           rows={7}
           value={values.description}
           onChange={(event) => setField("description", event.target.value)}
           aria-invalid={Boolean(errors.description)}
-          aria-describedby={errors.description ? "description-error" : undefined}
+          aria-describedby={
+            errors.description ? "description-error" : undefined
+          }
           className={inputClass(Boolean(errors.description))}
         />
       </Field>
@@ -251,37 +171,21 @@ export default function ProjectBasicForm({ projectId, initialValues }: Props) {
         <label className="hud-label flex items-center gap-3 text-muted">
           <Toggle
             checked={values.status === "published"}
-            onChange={(next) => setField("status", next ? "published" : "draft")}
+            onChange={(next) =>
+              setField("status", next ? "published" : "draft")
+            }
             label="Published"
           />
           {values.status === "published" ? "Published" : "Draft"}
         </label>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 border-t border-line pt-6">
-        <Button type="submit" disabled={!dirty || saving}>
-          {saving ? "Saving..." : "Save changes"}
-        </Button>
-
-        {dirty && !saving && (
-          <Button type="button" variant="ghost" onClick={handleDiscard}>
-            Discard
-          </Button>
-        )}
-
-        {dirty && !message && (
-          <span className="hud-label text-gold-dim">Unsaved changes</span>
-        )}
-
-        {message && (
-          <span
-            role={message.type === "error" ? "alert" : "status"}
-            className={`hud-label ${message.type === "ok" ? "text-gold" : "text-alert"}`}
-          >
-            {message.type === "ok" ? "✓" : "⚠"} {message.text}
-          </span>
-        )}
-      </div>
+      <FormActions
+        dirty={form.dirty}
+        saving={form.saving}
+        message={form.message}
+        onDiscard={form.handleDiscard}
+      />
     </form>
   );
 }

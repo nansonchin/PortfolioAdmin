@@ -70,3 +70,5 @@ export type ProjectBasic = Pick<
   "title" | "slug" | "summary" | "description" | "year" | "category" | "githubUrl" | "demoUrl"
 > &
   Pick<AdminProject, "featured" | "status">;
+
+  export type ProjectLists = Pick<Project,"technologies" | "features" | "responsibilities" | "challenges" | "solutions">

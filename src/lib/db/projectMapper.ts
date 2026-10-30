@@ -3,6 +3,7 @@ import type {
   ProjectArchitecture,
   ProjectBasic,
   ProjectGalleryImage,
+  ProjectLists,
   ProjectStatus,
   ProjectStory,
   ResponsiveImage,
@@ -103,5 +104,15 @@ export function basicToRowPatch(input: ProjectBasic): Partial<ProjectRowInput> {
     demo_url: input.demoUrl || null,
     featured: input.featured,
     status: input.status,
+  };
+}
+
+export function listsToRowPatch(input: ProjectLists): Partial<ProjectRowInput> {
+  return {
+    technologies: input.technologies,
+    features: input.features,
+    responsibilities: input.responsibilities,
+    challenges: input.challenges,
+    solutions: input.solutions,
   };
 }

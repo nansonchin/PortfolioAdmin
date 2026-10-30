@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ValidationResult } from "./shared";
 
 function isHttpUrl(value: string): boolean {
   try {
@@ -73,4 +74,10 @@ export function issuesToFieldErrors(
   }
 
   return errors;
+}
+
+export function validateProjectBasic(values:ProjectBasicFormValues):ValidationResult{
+  const result = projectBasicSchema.safeParse(values);
+
+  return result.success? {ok:true}: {ok:false, errors:issuesToFieldErrors(result.error.issues)}
 }
