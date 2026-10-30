@@ -72,3 +72,7 @@ export type ProjectBasic = Pick<
   Pick<AdminProject, "featured" | "status">;
 
   export type ProjectLists = Pick<Project,"technologies" | "features" | "responsibilities" | "challenges" | "solutions">
+
+  export type ProjectGallery = Pick<Project,"gallery">
+
+  

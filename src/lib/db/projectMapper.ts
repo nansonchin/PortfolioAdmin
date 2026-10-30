@@ -2,6 +2,7 @@ import type {
   AdminProject,
   ProjectArchitecture,
   ProjectBasic,
+  ProjectGallery,
   ProjectGalleryImage,
   ProjectLists,
   ProjectStatus,
@@ -119,4 +120,8 @@ export function listsToRowPatch(input: ProjectLists): Partial<ProjectRowInput> {
 
 export function storyToRowPatch(input:ProjectStory):Partial<ProjectRowInput>{
   return {story:input}
+}
+
+export function galleryToRowPatch(input:ProjectGallery):Partial<ProjectRowInput>{
+  return {gallery:input.gallery}
 }

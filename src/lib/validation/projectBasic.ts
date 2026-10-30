@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { ValidationResult } from "./shared";
 
-function isHttpUrl(value: string): boolean {
+export function isHttpUrl(value: string): boolean {
   try {
     const url = new URL(value);
     return url.protocol === "http:" || url.protocol === "https:";
@@ -70,6 +70,13 @@ export function issuesToFieldErrors(
     const field = String(issue.path[0] ?? "form");
     if (!(field in errors)) {
       errors[field] = issue.message;
+    }
+
+    if(issue.path.length >1){
+      const fullPath = issue.path.map(String).join(".")
+      if(!(fullPath in errors)){
+        errors[fullPath]=issue.message
+      }
     }
   }
 
