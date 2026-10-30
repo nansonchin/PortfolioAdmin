@@ -14,6 +14,7 @@ import {
   type ProjectFilters,
 } from "./filter";
 import type { ProjectListItem } from "./listItem";
+import Link from "next/link";
 
 const controlClass =
   "border border-line bg-ink px-3 py-2 text-paper outline-none transition focus:border-gold";
@@ -31,7 +32,10 @@ export default function ProjectTable({
 
   const [savingIds, setSavingIds] = useState<Set<string>>(new Set());
 
-  const visibleItems = useMemo(() => filterProjects(items, filters), [items, filters]);
+  const visibleItems = useMemo(
+    () => filterProjects(items, filters),
+    [items, filters],
+  );
   const categories = useMemo(() => getCategories(items), [items]);
 
   function setSaving(id: string, saving: boolean) {
@@ -69,7 +73,9 @@ export default function ProjectTable({
       router.refresh();
     } catch {
       setItems((current) =>
-        current.map((item) => (item.id === id ? { ...item, ...rollback } : item)),
+        current.map((item) =>
+          item.id === id ? { ...item, ...rollback } : item,
+        ),
       );
       setError("Could not save the change. Nothing was modified.");
     } finally {
@@ -77,12 +83,18 @@ export default function ProjectTable({
     }
   }
 
-  function updateFilter<K extends keyof ProjectFilters>(key: K, value: ProjectFilters[K]) {
+  function updateFilter<K extends keyof ProjectFilters>(
+    key: K,
+    value: ProjectFilters[K],
+  ) {
     setFilters((current) => ({ ...current, [key]: value }));
   }
 
   return (
-    <Panel title="All projects" tag={`${visibleItems.length} of ${items.length}`}>
+    <Panel
+      title="All projects"
+      tag={`${visibleItems.length} of ${items.length}`}
+    >
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <input
           type="search"
@@ -96,7 +108,10 @@ export default function ProjectTable({
         <select
           value={filters.status}
           onChange={(event) =>
-            updateFilter("status", event.target.value as ProjectFilters["status"])
+            updateFilter(
+              "status",
+              event.target.value as ProjectFilters["status"],
+            )
           }
           aria-label="Filter by status"
           className={controlClass}
@@ -177,14 +192,20 @@ export default function ProjectTable({
                       <p className="hud-label text-muted">{item.slug}</p>
                     </td>
 
-                    <td className="hud-label py-3 pr-4 text-muted">{item.year}</td>
-                    <td className="py-3 pr-4 text-muted">{item.category || "—"}</td>
+                    <td className="hud-label py-3 pr-4 text-muted">
+                      {item.year}
+                    </td>
+                    <td className="py-3 pr-4 text-muted">
+                      {item.category || "—"}
+                    </td>
 
                     <td className="py-3 pr-4">
                       <Toggle
                         checked={item.featured}
                         disabled={saving}
-                        onChange={(next) => updateItem(item.id, { featured: next })}
+                        onChange={(next) =>
+                          updateItem(item.id, { featured: next })
+                        }
                         label={`Featured: ${item.title}`}
                       />
                     </td>
@@ -195,13 +216,17 @@ export default function ProjectTable({
                           checked={item.status === "published"}
                           disabled={saving}
                           onChange={(next) =>
-                            updateItem(item.id, { status: next ? "published" : "draft" })
+                            updateItem(item.id, {
+                              status: next ? "published" : "draft",
+                            })
                           }
                           label={`Published: ${item.title}`}
                         />
                         <span
                           className={`hud-label ${
-                            item.status === "published" ? "text-gold" : "text-alert"
+                            item.status === "published"
+                              ? "text-gold"
+                              : "text-alert"
                           }`}
                         >
                           {item.status}
@@ -209,8 +234,13 @@ export default function ProjectTable({
                       </div>
                     </td>
 
-                    <td className="hud-label py-3 text-gold-dim opacity-40" title="Available in Step 5">
-                      Edit
+                    <td className="py-3">
+                      <Link
+                        href={`/projects/${encodeURIComponent(item.id)}`}
+                        className="hud-label text-gold transition hover:text-gold-bright"
+                      >
+                        Edit →
+                      </Link>
                     </td>
                   </tr>
                 );
