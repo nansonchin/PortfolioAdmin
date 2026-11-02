@@ -75,4 +75,6 @@ export type ProjectBasic = Pick<
 
   export type ProjectGallery = Pick<Project,"gallery">
 
-  
+  export type ProjectArchitectureSection ={
+    architecture:ProjectArchitecture | null
+  }

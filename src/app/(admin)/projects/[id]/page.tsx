@@ -15,6 +15,8 @@ import ProjectStoryForm from "@/features/projects/ProjectStoryForm";
 import { toStoryFormValues } from "@/features/projects/storyForm";
 import ProjectGalleryForm from "@/features/projects/ProjectGalleryForm";
 import { toGalleryFormValues } from "@/features/projects/galleryForm";
+import ProjectArchitectureForm from "@/features/projects/ProjectArchitectureForm";
+import { toArchitectureFormValues } from "@/features/projects/architectureForm";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -76,6 +78,15 @@ export default async function EditProjectPage({ params }: PageProps) {
             projectId={project.id}
             initialValues={toGalleryFormValues(project)}
           />
+        </Panel>
+
+        <Panel title="Architecture" tag="section 5 of 5">
+          <ProjectArchitectureForm
+            key={project.id}
+            projectId={project.id}
+            initialValues={toArchitectureFormValues(project)}
+          />
+
         </Panel>
       </div>
     </>

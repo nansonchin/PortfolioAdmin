@@ -1,6 +1,7 @@
 import type {
   AdminProject,
   ProjectArchitecture,
+  ProjectArchitectureSection,
   ProjectBasic,
   ProjectGallery,
   ProjectGalleryImage,
@@ -9,6 +10,7 @@ import type {
   ProjectStory,
   ResponsiveImage,
 } from "@/types/project";
+import { normalizeArchitecture } from "../architecture";
 
 export type ProjectRow = {
   id: string;
@@ -124,4 +126,12 @@ export function storyToRowPatch(input:ProjectStory):Partial<ProjectRowInput>{
 
 export function galleryToRowPatch(input:ProjectGallery):Partial<ProjectRowInput>{
   return {gallery:input.gallery}
+}
+
+export function architectureToRowPatch(
+  input:ProjectArchitectureSection,
+):Partial<ProjectRowInput>{
+  return{
+    architecture:input.architecture? normalizeArchitecture(input.architecture):null
+  }
 }
