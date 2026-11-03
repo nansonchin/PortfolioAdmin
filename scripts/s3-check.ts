@@ -1,14 +1,12 @@
-import dotenv from "dotenv"
 import {
   CreateBucketCommand,
   ListObjectsV2Command,
   PutObjectCommand,
 } from "@aws-sdk/client-s3";
 import { createS3Client, readS3Config } from "../src/lib/storage/s3Client";
+import { loadEnv } from "../lib/env/loadEnv";
 
-dotenv.config({
-    path:".env.local"
-})
+loadEnv()
 
 async function main() {
   const config = readS3Config();
