@@ -1,17 +1,20 @@
+import { isLegacyPath, isStorageKey } from "./imageRef";
+import { isHttpUrl } from "./validation/projectBasic";
+
 const PORTFOLIO_ORIGIN = (
   process.env.NEXT_PUBLIC_PORTFOLIO_ORIGIN ?? ""
 ).replace(/\/+$/, "");
 
+const STORAGE_PUBLIC_BASE = (process.env.NEXT_PUBLIC_S3_PUBLIC_BASE_URL ?? "").replace(/\/+$/, "");
+
+
 export function resolvePreviewSrc(value: string): string | null {
-  const url = value.trim();
+  const ref = value.trim();
+  if (ref === "") return null;
 
-  if (url === "") return null;
-
-  if (/^https?:\/\//i.test(url)) return url;
-
-  if (url.startsWith("/") && !url.startsWith("//") && PORTFOLIO_ORIGIN) {
-    return `${PORTFOLIO_ORIGIN}${url}`;
-  }
+  if (isHttpUrl(ref)) return ref;
+  if (isStorageKey(ref)) return STORAGE_PUBLIC_BASE ? `${STORAGE_PUBLIC_BASE}/${ref}` : null;
+  if (isLegacyPath(ref)) return PORTFOLIO_ORIGIN ? `${PORTFOLIO_ORIGIN}${ref}` : null;
 
   return null;
 }

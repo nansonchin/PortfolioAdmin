@@ -26,6 +26,7 @@ export default function ProjectGalleryForm({ projectId, initialValues }: Props) 
       <GalleryEditor
         items={form.values.gallery}
         onChange={(next) => form.setField("gallery", next)}
+        projectId={projectId}
         errors={form.errors}
       />
 

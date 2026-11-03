@@ -3,6 +3,7 @@ import type {
   ProjectArchitecture,
   ProjectArchitectureSection,
   ProjectBasic,
+  ProjectCover,
   ProjectGallery,
   ProjectGalleryImage,
   ProjectLists,
@@ -134,4 +135,8 @@ export function architectureToRowPatch(
   return{
     architecture:input.architecture? normalizeArchitecture(input.architecture):null
   }
+}
+
+export function coverToRowPatch(input: ProjectCover): Partial<ProjectRowInput> {
+  return { thumbnail: input.thumbnail, hero_image: input.heroImage };
 }

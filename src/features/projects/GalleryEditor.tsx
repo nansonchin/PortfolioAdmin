@@ -7,14 +7,16 @@ import ImageField from "@/components/ui/ImageField";
 import type { ProjectGalleryImage } from "@/types/project";
 import { createGalleryItem } from "./galleryForm";
 import { moveItem, removeAt, replaceAt } from "@/lib/array";
+import { uploadImage } from "../upload/uploadImage";
 
 type GalleryEditorProps = {
+  projectId:string;
   items: ProjectGalleryImage[];
   onChange: (next: ProjectGalleryImage[]) => void;
   errors: Record<string, string>; 
 };
 
-export default function GalleryEditor({ items, onChange, errors }: GalleryEditorProps) {
+export default function GalleryEditor({ projectId, items, onChange, errors }: GalleryEditorProps) {
   function updateItem(index: number, patch: Partial<ProjectGalleryImage>) {
     onChange(replaceAt(items, index, { ...items[index], ...patch }));
   }
@@ -64,6 +66,7 @@ export default function GalleryEditor({ items, onChange, errors }: GalleryEditor
               label="Image"
               value={item.imageUrl}
               onChange={(next) => updateItem(index, { imageUrl: next })}
+              onUpload={(file)=>uploadImage({file,projectId,purpose:"gallery"})}
               error={errors[`gallery.${index}.imageUrl`]}
             />
 

@@ -1,6 +1,6 @@
-import { AdminProject, ProjectArchitectureSection, ProjectBasic, ProjectFlagsPatch, ProjectGallery, ProjectLists, ProjectStory } from "@/types/project";
+import { AdminProject, ProjectArchitectureSection, ProjectBasic, ProjectCover, ProjectFlagsPatch, ProjectGallery, ProjectLists, ProjectStory } from "@/types/project";
 import { getSupabase } from "./supabase";
-import { architectureToRowPatch, basicToRowPatch, galleryToRowPatch, listsToRowPatch, ProjectRow, rowToProject, storyToRowPatch } from "./projectMapper";
+import { architectureToRowPatch, basicToRowPatch, coverToRowPatch, galleryToRowPatch, listsToRowPatch, ProjectRow, rowToProject, storyToRowPatch } from "./projectMapper";
 
 export async function listProjects():Promise<AdminProject[]>{
     const {data,error} = await getSupabase().from("projects").select("*").order("sort_order",{ascending:true}).returns<ProjectRow[]>()
@@ -136,3 +136,15 @@ export async function updateProjectArchiteture(
     return data?rowToProject(data):null
 }
 
+export async function updateProjectCover(
+    id:string,
+    input:ProjectCover,
+    
+):Promise<AdminProject|null>{
+    const {data,error} = await getSupabase().from("projects").update(coverToRowPatch(input)).eq("id",id).select("*").maybeSingle<ProjectRow>()
+    if(error){
+        throw new Error(`Failed to save the project (Upload): ${error.message}`)
+    }
+
+    return data? rowToProject(data):null;
+}

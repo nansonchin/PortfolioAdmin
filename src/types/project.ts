@@ -78,3 +78,5 @@ export type ProjectBasic = Pick<
   export type ProjectArchitectureSection ={
     architecture:ProjectArchitecture | null
   }
+
+  export type ProjectCover = Pick<Project,"thumbnail" | "heroImage">

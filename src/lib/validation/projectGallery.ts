@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { isHttpUrl, issuesToFieldErrors } from "./projectBasic";
 import type { ValidationResult } from "./shared";
+import { isAllowedImageRef } from "../imageRef";
 
 function isAllowedImageUrl(value: string): boolean {
   return (value.startsWith("/") && !value.startsWith("//")) || isHttpUrl(value);
@@ -15,7 +16,10 @@ const galleryItemSchema = z.object({
     .trim()
     .min(1, "Image URL is required")
     .max(2000, "Max 2000 characters")
-    .refine(isAllowedImageUrl, "Use a path like /images/shot.webp or a full http(s) URL"),
+    .refine(
+      isAllowedImageRef,
+      "Upload an image, or use a path like /images/shot.webp or a full http(s) URL",
+    ),
   title: z.string().trim().max(120, "Max 120 characters"),
   description: z.string().trim().max(500, "Max 500 characters"),
 });
@@ -27,7 +31,9 @@ export const projectGallerySchema = z.object({
 export type ProjectGalleryFormValues = z.input<typeof projectGallerySchema>;
 export type ProjectGalleryInput = z.output<typeof projectGallerySchema>;
 
-export function validateProjectGallery(values: ProjectGalleryFormValues): ValidationResult {
+export function validateProjectGallery(
+  values: ProjectGalleryFormValues,
+): ValidationResult {
   const result = projectGallerySchema.safeParse(values);
 
   return result.success
