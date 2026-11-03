@@ -1,0 +1,32 @@
+
+# START：docker compose up -d     STOP：docker compose down
+
+services:
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.06
+
+    container_name: portfolio-seaweedfs
+
+    command: >
+      server
+      -dir=/data
+      -ip.bind=0.0.0.0
+      -filer
+      -s3
+      -s3.port=8333
+      -s3.config=/etc/seaweedfs/s3.json
+
+
+    ports:
+      - "127.0.0.1:8333:8333" 
+      - "127.0.0.1:8888:8888" 
+
+    volumes:
+      - seaweedfs_data:/data
+      - ./s3.json:/etc/seaweedfs/s3.json:ro
+
+
+    restart: unless-stopped
+
+volumes:
+  seaweedfs_data:
