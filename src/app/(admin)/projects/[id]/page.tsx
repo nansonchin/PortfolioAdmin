@@ -17,6 +17,8 @@ import ProjectGalleryForm from "@/features/projects/ProjectGalleryForm";
 import { toGalleryFormValues } from "@/features/projects/galleryForm";
 import ProjectArchitectureForm from "@/features/projects/ProjectArchitectureForm";
 import { toArchitectureFormValues } from "@/features/projects/architectureForm";
+import ProjectCoverForm from "@/features/projects/ProjectCoverForm";
+import { toCoverFormValues } from "@/features/projects/coverForm";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -46,8 +48,9 @@ export default async function EditProjectPage({ params }: PageProps) {
         eyebrow={`02 // Projects / ${project.slug}`}
         title={project.title}
       />
+
       <div className="space-y-6">
-        <Panel title="Basic info" tag="section 1 of 5">
+        <Panel title="Basic info" tag="section 1 of 6">
           <ProjectBasicForm
             key={project.id}
             projectId={project.id}
@@ -55,7 +58,15 @@ export default async function EditProjectPage({ params }: PageProps) {
           />
         </Panel>
 
-        <Panel title="Details" tag="section 2 of 5">
+        <Panel title="Cover images" tag="section 2 of 6">
+          <ProjectCoverForm
+            key={project.id}
+            projectId={project.id}
+            initialValues={toCoverFormValues(project)}
+          />
+        </Panel>
+
+        <Panel title="Details" tag="section 3 of 6">
           <ProjectListsForm
             key={project.id}
             projectId={project.id}
@@ -64,7 +75,7 @@ export default async function EditProjectPage({ params }: PageProps) {
           />
         </Panel>
 
-        <Panel title="Story" tag="section 3 of 5">
+        <Panel title="Story" tag="section 4 of 6">
           <ProjectStoryForm
             key={project.id}
             projectId={project.id}
@@ -72,7 +83,7 @@ export default async function EditProjectPage({ params }: PageProps) {
           />
         </Panel>
 
-        <Panel title="Gallery" tag="section 4 of 5">
+        <Panel title="Gallery" tag="section 5 of 6">
           <ProjectGalleryForm
             key={project.id}
             projectId={project.id}
@@ -80,13 +91,12 @@ export default async function EditProjectPage({ params }: PageProps) {
           />
         </Panel>
 
-        <Panel title="Architecture" tag="section 5 of 5">
+        <Panel title="Architecture" tag="section 6 of 6">
           <ProjectArchitectureForm
             key={project.id}
             projectId={project.id}
             initialValues={toArchitectureFormValues(project)}
           />
-
         </Panel>
       </div>
     </>
