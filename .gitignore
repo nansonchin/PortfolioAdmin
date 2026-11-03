@@ -23,6 +23,7 @@
 # misc
 .DS_Store
 *.pem
+docker/seaweedfs/s3.json
 
 # debug
 npm-debug.log*
