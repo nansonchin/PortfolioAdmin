@@ -4,6 +4,7 @@ export type S3Config ={
     endpoint:string;
     region:string;
     bucket:string;
+    snapshotBucket:string;
     accessKeyId:string;
     secretAccessKey:string;
     forcePathStyle:boolean;
@@ -24,6 +25,7 @@ export function readS3Config(env: NodeJS.ProcessEnv = process.env): S3Config {
     endpoint: need(env, "S3_ENDPOINT"),
     region: env.S3_REGION ?? "us-east-1",
     bucket: need(env, "S3_BUCKET"),
+    snapshotBucket:need(env,"S3_SNAPSHOT_BUCKET"),
     accessKeyId: need(env, "S3_ACCESS_KEY_ID"),
     secretAccessKey: need(env, "S3_SECRET_ACCESS_KEY"),
     forcePathStyle: env.S3_FORCE_PATH_STYLE === "true",

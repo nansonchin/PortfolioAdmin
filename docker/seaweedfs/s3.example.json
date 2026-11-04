@@ -3,7 +3,8 @@
            {
       "name": "anonymous",
       "actions": [
-        "Read:portfolio-media/projects/*"
+        "Read:portfolio-media/projects/*",
+        "Read:portfolio-snapshots/*"
       ]
     },
         {
