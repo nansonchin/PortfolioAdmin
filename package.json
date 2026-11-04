@@ -10,7 +10,8 @@
     "seed": "tsx --env-file=.env.local scripts/seed.ts",
     "s3:check": "tsx --env-file=.env.local scripts/s3-check.ts",
     "s3:lab": "tsx --env-file=.env.local scripts/s3-presign-lab.ts",
-    "s3:setup": "tsx --env-file=.env.local scripts/s3-setup-bucket.ts"
+    "s3:setup": "tsx --env-file=.env.local scripts/s3-setup-bucket.ts",
+    "s3:verify-public":"tsx --env-file=.env.local scripts/s3-verify-public.ts"
 
   },
   "dependencies": {
