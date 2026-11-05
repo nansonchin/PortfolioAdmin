@@ -8,6 +8,7 @@ import { listProjects } from "../db/projectRepository";
 import { readPublicBaseUrl } from "../storage/publicUrl";
 import { getStorage } from "../storage/server";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { listTranslation } from "../db/translationRepository";
 
 export const SNAPSHOT_KEY = "latest.json";
 const SNAPSHOT_CACHE_CONTROL = "public, max-age=60";
@@ -21,6 +22,13 @@ export async function prepareSnapshot(): Promise<{
   return { snapshot, problems: findSnapshotProblems(snapshot) };
 }
 
+export function isInSync(live:PortfolioSnapshot,current:PortfolioSnapshot):boolean{
+  const liveTranslation = live.translations?? {};
+
+  return(
+    JSON.stringify([live.projects,liveTranslation]) === JSON.stringify([current.projects, current.translations])
+  )
+}
 export type PublishOutcome =
   | { ok: true; generatedAt: string; projectCount: number; bytes: number }
   | { ok: false; problems: string[] };
@@ -85,11 +93,4 @@ export async function readLiveSnapshot(): Promise<PortfolioSnapshot | null> {
   } catch (error) {
     return null;
   }
-}
-
-export function isInSync(
-  live: PortfolioSnapshot,
-  current: PortfolioSnapshot,
-): boolean {
-  return JSON.stringify(live.projects) === JSON.stringify(current.projects);
 }

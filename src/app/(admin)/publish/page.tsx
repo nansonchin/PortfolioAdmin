@@ -52,6 +52,8 @@ export default async function PublishPage() {
         <StatCard label="Will be published" value={published.length} />
         <StatCard label="Drafts (excluded)" value={drafts.length} />
         <StatCard label="Images in storage" value={imagesInStorage} />
+        <StatCard label="Translated (zh)" value={Object.keys(snapshot?.translations.zh??{}).length}/>
+
       </div>
 
       <div className="mt-4 space-y-4">

@@ -58,11 +58,10 @@ export default function ProjectBasicForm({ projectId, initialValues }: Props) {
           aria-describedby={errors.slug ? "slug-error" : undefined}
           className={`${inputClass(Boolean(errors.slug))} font-system`}
         />
-        {slugChanged && (
+          {slugChanged && (
           <p className="mt-2 text-sm text-alert">
-            ⚠ Changing the slug breaks existing links and the Chinese
-            translation (which is stored under the slug) until they are updated
-            too.
+            ⚠ Changing the slug changes the project&apos;s URL, so links that use the old one
+            will stop working. Translations are not affected.
           </p>
         )}
       </Field>
