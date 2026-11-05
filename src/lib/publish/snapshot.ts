@@ -1,10 +1,13 @@
 import { AdminProject, Project } from "@/types/project";
 import { isStorageKey } from "../imageRef";
+import { Language, ProjectTranslation } from "@/types/translation";
+import { buildTranslationMap } from "./translation";
 
 export type PortfolioSnapshot={
     version:1;
     generatedAt:string;
-    projects:Project[]
+    projects:Project[],
+    translations:Partial<Record<Language,Record<string,ProjectTranslation>>>
 }
 
 export function toPublicImageUrl(value:string,publicBase:string):string{
@@ -50,14 +53,20 @@ export function toPublicProject(project:AdminProject,publicBase:string):Project{
 export function buildSnapShot(
     projects:AdminProject[],
     publicBase:string,
+      rawTranslations: Partial<Record<Language, Record<string, ProjectTranslation>>> = {},
     now:Date = new Date()
 ):PortfolioSnapshot{
     const published = projects.filter((project)=>project.status === "published").sort((a,b)=>a.sortOrder - b.sortOrder)
 
+    const translations:PortfolioSnapshot["translations"]={}
+    for(const lang of Object.keys(rawTranslations)as Language[]){
+      translations[lang]=buildTranslationMap(published, rawTranslations[lang] ?? {});
+    }
     return {
         version:1,
         generatedAt:now.toISOString(),
-        projects:published.map((project)=>toPublicProject(project,publicBase))
+        projects:published.map((project)=>toPublicProject(project,publicBase)),
+        translations,
     }
 }
 
