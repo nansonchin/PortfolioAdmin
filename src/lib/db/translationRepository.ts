@@ -21,3 +21,21 @@ export async function listTranslations(
 
   return Object.fromEntries(data.map((row) => [row.project_id, row.data]));
 }
+
+export async function getTranslation(
+  projectId:string,
+  lang:Language,
+):Promise<ProjectTranslation|undefined>{
+    const { data, error } = await getSupabase()
+    .from("project_translations")
+    .select("data")
+    .eq("project_id", projectId)
+    .eq("lang", lang)
+    .maybeSingle<{ data: ProjectTranslation }>();
+
+      if (error) {
+    throw new Error(`Failed to read Translation：${error.message}`);
+    
+  }
+  return data?.data;
+}

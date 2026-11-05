@@ -111,3 +111,13 @@ export function normalizeArchitecture(architecture: ProjectArchitecture): Projec
     root: normalizeNode(architecture.root),
   };
 }
+
+export function flattenNodes(
+  root:ArchitectureNode,
+  depth=0
+):{node:ArchitectureNode; depth:number}[]{
+  return [
+    {node: root,depth},
+    ...(root.children??[]).flatMap((child)=>flattenNodes(child,depth+1))
+  ]
+}
