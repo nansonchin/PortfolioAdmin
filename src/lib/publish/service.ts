@@ -1,6 +1,6 @@
 import "server-only";
 import {
-  buildSnapShot,
+  buildSnapshot,
   findSnapshotProblems,
   PortfolioSnapshot,
 } from "./snapshot";
@@ -8,7 +8,7 @@ import { listProjects } from "../db/projectRepository";
 import { readPublicBaseUrl } from "../storage/publicUrl";
 import { getStorage } from "../storage/server";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { listTranslation } from "../db/translationRepository";
+import { listTranslations } from "../db/translationRepository";
 
 export const SNAPSHOT_KEY = "latest.json";
 const SNAPSHOT_CACHE_CONTROL = "public, max-age=60";
@@ -17,18 +17,27 @@ export async function prepareSnapshot(): Promise<{
   snapshot: PortfolioSnapshot;
   problems: string[];
 }> {
-  const projects = await listProjects();
-  const snapshot = buildSnapShot(projects, readPublicBaseUrl());
+  const [projects, zh] = await Promise.all([
+    listProjects(),
+    listTranslations("zh"),
+  ]);
+
+  const snapshot = buildSnapshot(projects, readPublicBaseUrl(), { zh });
   return { snapshot, problems: findSnapshotProblems(snapshot) };
 }
 
-export function isInSync(live:PortfolioSnapshot,current:PortfolioSnapshot):boolean{
-  const liveTranslation = live.translations?? {};
+export function isInSync(
+  live: PortfolioSnapshot,
+  current: PortfolioSnapshot,
+): boolean {
+  const liveTranslations = live.translations ?? {};
 
-  return(
-    JSON.stringify([live.projects,liveTranslation]) === JSON.stringify([current.projects, current.translations])
-  )
+  return (
+    JSON.stringify([live.projects, liveTranslations]) ===
+    JSON.stringify([current.projects, current.translations])
+  );
 }
+
 export type PublishOutcome =
   | { ok: true; generatedAt: string; projectCount: number; bytes: number }
   | { ok: false; problems: string[] };

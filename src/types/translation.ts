@@ -1,11 +1,10 @@
-import { ProjectStory } from "./project";
+import type { ProjectStory } from "./project";
 
 export type Language = "zh";
 
-export const TRANSLATION_LANGUAGE: ReadonlyArray<{
-  code: Language;
-  label: string;
-}> = [{ code: "zh", label: "中文" }];
+export const TRANSLATION_LANGUAGES: ReadonlyArray<{ code: Language; label: string }> = [
+  { code: "zh", label: "中文" },
+];
 
 export type NodeTranslation = {
   title?: string;

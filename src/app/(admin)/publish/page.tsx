@@ -1,8 +1,12 @@
 import { redirect } from "next/navigation";
 import { listProjects } from "@/lib/db/projectRepository";
-import { isInSync, readLiveSnapshot } from "@/lib/publish/service";
 import {
-  buildSnapShot,
+  isInSync,
+  prepareSnapshot,
+  readLiveSnapshot,
+} from "@/lib/publish/service";
+import {
+  buildSnapshot,
   countStorageImages,
   findSnapshotProblems,
   type PortfolioSnapshot,
@@ -18,27 +22,34 @@ export default async function PublishPage() {
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const [projects, live] = await Promise.all([listProjects(), readLiveSnapshot()]);
+  const [projects, live] = await Promise.all([
+    listProjects(),
+    readLiveSnapshot(),
+  ]);
 
   let snapshot: PortfolioSnapshot | null = null;
   let configError: string | null = null;
-
+  let problems: string[] = [];
   try {
-    snapshot = buildSnapShot(projects, readPublicBaseUrl());
+    const prepared = await prepareSnapshot();
+    snapshot = prepared.snapshot;
+    problems = prepared.problems;
   } catch (error) {
     configError = error instanceof Error ? error.message : "Unknown error";
   }
-
-  const problems = snapshot ? findSnapshotProblems(snapshot) : [];
   const published = projects
     .filter((project) => project.status === "published")
     .sort((a, b) => a.sortOrder - b.sortOrder);
   const drafts = projects.filter((project) => project.status !== "published");
-  const imagesInStorage = published.reduce((sum, project) => sum + countStorageImages(project), 0);
+  const imagesInStorage = published.reduce(
+    (sum, project) => sum + countStorageImages(project),
+    0,
+  );
   const canPublish = snapshot !== null && problems.length === 0;
 
   const inSync = snapshot !== null && live !== null && isInSync(live, snapshot);
-  const liveTag = live === null ? "not published" : inSync ? "up to date" : "changes pending";
+  const liveTag =
+    live === null ? "not published" : inSync ? "up to date" : "changes pending";
 
   return (
     <>
@@ -52,8 +63,10 @@ export default async function PublishPage() {
         <StatCard label="Will be published" value={published.length} />
         <StatCard label="Drafts (excluded)" value={drafts.length} />
         <StatCard label="Images in storage" value={imagesInStorage} />
-        <StatCard label="Translated (zh)" value={Object.keys(snapshot?.translations.zh??{}).length}/>
-
+        <StatCard
+          label="Translated (zh)"
+          value={Object.keys(snapshot?.translations.zh ?? {}).length}
+        />
       </div>
 
       <div className="mt-4 space-y-4">
@@ -61,13 +74,16 @@ export default async function PublishPage() {
           {live === null ? (
             <p className="text-muted">
               Nothing is live yet, or the snapshot URL cannot be reached. Check{" "}
-              <span className="font-system">SNAPSHOT_PUBLIC_URL</span> in .env.local.
+              <span className="font-system">SNAPSHOT_PUBLIC_URL</span> in
+              .env.local.
             </p>
           ) : (
             <dl className="grid gap-4 sm:grid-cols-2">
               <div>
                 <dt className="hud-label text-gold-dim">Last published</dt>
-                <dd className="text-paper">{new Date(live.generatedAt).toLocaleString()}</dd>
+                <dd className="text-paper">
+                  {new Date(live.generatedAt).toLocaleString()}
+                </dd>
               </div>
               <div>
                 <dt className="hud-label text-gold-dim">Projects live</dt>
@@ -77,8 +93,12 @@ export default async function PublishPage() {
           )}
 
           {live !== null && (
-            <p className={`hud-label mt-4 ${inSync ? "text-gold" : "text-alert"}`}>
-              {inSync ? "✓ The live snapshot matches the database." : "● There are unpublished changes."}
+            <p
+              className={`hud-label mt-4 ${inSync ? "text-gold" : "text-alert"}`}
+            >
+              {inSync
+                ? "✓ The live snapshot matches the database."
+                : "● There are unpublished changes."}
             </p>
           )}
 
@@ -127,7 +147,8 @@ export default async function PublishPage() {
 
           {drafts.length > 0 && (
             <p className="mt-4 text-sm text-muted">
-              Not included (draft): {drafts.map((project) => project.title).join(", ")}
+              Not included (draft):{" "}
+              {drafts.map((project) => project.title).join(", ")}
             </p>
           )}
         </Panel>

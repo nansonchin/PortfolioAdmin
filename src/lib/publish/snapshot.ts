@@ -3,21 +3,24 @@ import { isStorageKey } from "../imageRef";
 import { Language, ProjectTranslation } from "@/types/translation";
 import { buildTranslationMap } from "./translation";
 
-export type PortfolioSnapshot={
-    version:1;
-    generatedAt:string;
-    projects:Project[],
-    translations:Partial<Record<Language,Record<string,ProjectTranslation>>>
+export type PortfolioSnapshot = {
+  version: 1;
+  generatedAt: string;
+  projects: Project[];
+  translations: Partial<Record<Language, Record<string, ProjectTranslation>>>;
+};
+
+export function toPublicImageUrl(value: string, publicBase: string): string {
+  return isStorageKey(value) ? `${publicBase}/${value}` : value;
 }
 
-export function toPublicImageUrl(value:string,publicBase:string):string{
-    return  isStorageKey(value)?`${publicBase}/${value}` : value;
-}
+export function toPublicProject(
+  project: AdminProject,
+  publicBase: string,
+): Project {
+  const { heroImage } = project;
 
-export function toPublicProject(project:AdminProject,publicBase:string):Project{
-    const {heroImage} = project
-
-    return {
+  return {
     id: project.id,
     slug: project.slug,
     title: project.title,
@@ -49,33 +52,38 @@ export function toPublicProject(project:AdminProject,publicBase:string):Project{
     ...(project.architecture ? { architecture: project.architecture } : {}),
   };
 }
+export function buildSnapshot(
+  projects: AdminProject[],
+  publicBase: string,
+  rawTranslations: Partial<
+    Record<Language, Record<string, ProjectTranslation>>
+  > = {},
+  now: Date = new Date(),
+): PortfolioSnapshot {
+  const published = projects
+    .filter((project) => project.status === "published")
+    .sort((a, b) => a.sortOrder - b.sortOrder);
 
-export function buildSnapShot(
-    projects:AdminProject[],
-    publicBase:string,
-      rawTranslations: Partial<Record<Language, Record<string, ProjectTranslation>>> = {},
-    now:Date = new Date()
-):PortfolioSnapshot{
-    const published = projects.filter((project)=>project.status === "published").sort((a,b)=>a.sortOrder - b.sortOrder)
+  const translations: PortfolioSnapshot["translations"] = {};
+  for (const lang of Object.keys(rawTranslations) as Language[]) {
+    translations[lang] = buildTranslationMap(
+      published,
+      rawTranslations[lang] ?? {},
+    );
+  }
 
-    const translations:PortfolioSnapshot["translations"]={}
-    for(const lang of Object.keys(rawTranslations)as Language[]){
-      translations[lang]=buildTranslationMap(published, rawTranslations[lang] ?? {});
-    }
-    return {
-        version:1,
-        generatedAt:now.toISOString(),
-        projects:published.map((project)=>toPublicProject(project,publicBase)),
-        translations,
-    }
+  return {
+    version: 1,
+    generatedAt: now.toISOString(),
+    projects: published.map((project) => toPublicProject(project, publicBase)),
+    translations,
+  };
 }
+export function findSnapshotProblems(snapshot: PortfolioSnapshot): string[] {
+  const problems: string[] = [];
+  const seenSlugs = new Set<string>();
 
-export function findSnapshotProblems(snapshot:PortfolioSnapshot):string[]{
-    const problems:string[]=[]
-    const seenSlugs = new Set<string>()
-
-
-      if (snapshot.projects.length === 0) {
+  if (snapshot.projects.length === 0) {
     problems.push("There are no published projects.");
   }
 
@@ -96,8 +104,10 @@ export function findSnapshotProblems(snapshot:PortfolioSnapshot):string[]{
   return problems;
 }
 
-export function countStorageImages(project:AdminProject):number{
-    return [project.thumbnail,project.heroImage.src, ...project.gallery.map((g)=>g.imageUrl)].filter(
-        isStorageKey,
-    ).length
+export function countStorageImages(project: AdminProject): number {
+  return [
+    project.thumbnail,
+    project.heroImage.src,
+    ...project.gallery.map((g) => g.imageUrl),
+  ].filter(isStorageKey).length;
 }
