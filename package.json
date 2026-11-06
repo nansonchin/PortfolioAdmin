@@ -13,7 +13,8 @@
     "s3:setup": "tsx --env-file=.env.local scripts/s3-setup-bucket.ts",
     "s3:verify-public":"tsx --env-file=.env.local scripts/s3-verify-public.ts",
     "s3:init": "tsx --env-file=.env.local scripts/s3-init-buckets.ts",
-    "seed:translations": "tsx --env-file=.env.local scripts/seed-translations.ts"
+    "seed:translations": "tsx --env-file=.env.local scripts/seed-translations.ts",  
+  "seed:site": "tsx --env-file=.env.local scripts/seed-site.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1161.0",

@@ -9,6 +9,8 @@ import { readPublicBaseUrl } from "../storage/publicUrl";
 import { getStorage } from "../storage/server";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { listTranslations } from "../db/translationRepository";
+import { listSiteRows } from "../db/siteRepository";
+import { buildSiteSnapshot } from "./site";
 
 export const SNAPSHOT_KEY = "latest.json";
 const SNAPSHOT_CACHE_CONTROL = "public, max-age=60";
@@ -17,24 +19,20 @@ export async function prepareSnapshot(): Promise<{
   snapshot: PortfolioSnapshot;
   problems: string[];
 }> {
-  const [projects, zh] = await Promise.all([
+  const [projects, zh,siteRows] = await Promise.all([
     listProjects(),
     listTranslations("zh"),
+    listSiteRows()
   ]);
 
-  const snapshot = buildSnapshot(projects, readPublicBaseUrl(), { zh });
+  const snapshot = buildSnapshot(projects, readPublicBaseUrl(), { zh },buildSiteSnapshot(siteRows));
   return { snapshot, problems: findSnapshotProblems(snapshot) };
 }
 
-export function isInSync(
-  live: PortfolioSnapshot,
-  current: PortfolioSnapshot,
-): boolean {
-  const liveTranslations = live.translations ?? {};
-
+export function isInSync(live: PortfolioSnapshot, current: PortfolioSnapshot): boolean {
   return (
-    JSON.stringify([live.projects, liveTranslations]) ===
-    JSON.stringify([current.projects, current.translations])
+    JSON.stringify([live.projects, live.translations ?? {}, live.site ?? {}]) ===
+    JSON.stringify([current.projects, current.translations, current.site])
   );
 }
 

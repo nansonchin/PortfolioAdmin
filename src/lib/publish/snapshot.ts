@@ -2,12 +2,14 @@ import { AdminProject, Project } from "@/types/project";
 import { isStorageKey } from "../imageRef";
 import { Language, ProjectTranslation } from "@/types/translation";
 import { buildTranslationMap } from "./translation";
+import { SiteSnapshot } from "./site";
 
 export type PortfolioSnapshot = {
   version: 1;
   generatedAt: string;
   projects: Project[];
   translations: Partial<Record<Language, Record<string, ProjectTranslation>>>;
+  site:SiteSnapshot
 };
 
 export function toPublicImageUrl(value: string, publicBase: string): string {
@@ -58,6 +60,7 @@ export function buildSnapshot(
   rawTranslations: Partial<
     Record<Language, Record<string, ProjectTranslation>>
   > = {},
+  site:SiteSnapshot,
   now: Date = new Date(),
 ): PortfolioSnapshot {
   const published = projects
@@ -77,6 +80,7 @@ export function buildSnapshot(
     generatedAt: now.toISOString(),
     projects: published.map((project) => toPublicProject(project, publicBase)),
     translations,
+    site,
   };
 }
 export function findSnapshotProblems(snapshot: PortfolioSnapshot): string[] {

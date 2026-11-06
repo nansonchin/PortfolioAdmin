@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { toStoredTranslation, type TranslationFormValues } from "../translation/form";
+import {
+  toStoredTranslation,
+  type TranslationFormValues,
+} from "../translation/form";
 import { issuesToFieldErrors } from "./projectBasic";
 import type { ValidationResult } from "./shared";
 import type { ProjectTranslation } from "@/types/translation";
@@ -9,7 +12,7 @@ const list = z.array(text(500)).max(30, "At most 30 items");
 
 const limited = <T extends z.ZodTypeAny>(schema: T) =>
   schema.refine(
-    (record: Record<string, unknown>) => Object.keys(record).length <= 100,
+    (record) => Object.keys(record as Record<string, unknown>).length <= 100,
     "Too many entries",
   );
 
@@ -29,7 +32,10 @@ export const projectTranslationSchema = z
       architecture: list,
     }),
     gallery: limited(
-      z.record(z.string().max(100), z.object({ title: text(120), description: text(500) })),
+      z.record(
+        z.string().max(100),
+        z.object({ title: text(120), description: text(500) }),
+      ),
     ),
     architecture: z
       .object({
@@ -38,15 +44,24 @@ export const projectTranslationSchema = z
         nodes: limited(
           z.record(
             z.string().max(100),
-            z.object({ title: text(80), description: text(300), details: text(2000) }),
+            z.object({
+              title: text(80),
+              description: text(300),
+              details: text(2000),
+            }),
           ),
         ),
       })
       .nullable(),
   })
-  .transform((values): ProjectTranslation => toStoredTranslation(values as TranslationFormValues));
+  .transform(
+    (values): ProjectTranslation =>
+      toStoredTranslation(values as TranslationFormValues),
+  );
 
-export function validateProjectTranslation(values: TranslationFormValues): ValidationResult {
+export function validateProjectTranslation(
+  values: TranslationFormValues,
+): ValidationResult {
   const result = projectTranslationSchema.safeParse(values);
 
   return result.success
