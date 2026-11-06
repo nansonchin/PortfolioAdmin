@@ -171,6 +171,7 @@ export default function ProjectTable({
                 <th className="py-3 pr-4 font-normal">Category</th>
                 <th className="py-3 pr-4 font-normal">Featured</th>
                 <th className="py-3 pr-4 font-normal">Status</th>
+                <th className="py-3 pr-4 font-nowmal">中文</th>
                 <th className="py-3 font-normal">Action</th>
               </tr>
             </thead>
@@ -232,6 +233,22 @@ export default function ProjectTable({
                           {item.status}
                         </span>
                       </div>
+                    </td>
+                       <td className="hud-label py-3 pr-4">
+                      {item.translation && item.translation.total > 0 ? (
+                        <Link
+                          href={`/projects/${encodeURIComponent(item.id)}/translate`}
+                          className={
+                            item.translation.done === item.translation.total
+                              ? "text-gold"
+                              : "text-muted hover:text-gold"
+                          }
+                        >
+                          {Math.round((item.translation.done / item.translation.total) * 100)}%
+                        </Link>
+                      ) : (
+                        <span className="text-gold-dim">—</span>
+                      )}
                     </td>
 
                     <td className="py-3">

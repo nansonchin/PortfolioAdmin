@@ -37,12 +37,17 @@ export default async function EditProjectPage({ params }: PageProps) {
 
   return (
     <>
-      <Link
-        href="/projects"
-        className="hud-label mb-4 inline-block text-gold-dim transition hover:text-gold"
-      >
-        ← Projects
-      </Link>
+           <div className="mb-4 flex items-center justify-between">
+        <Link href="/projects" className="hud-label text-gold-dim transition hover:text-gold">
+          ← Projects
+        </Link>
+        <Link
+          href={`/projects/${encodeURIComponent(project.id)}/translate`}
+          className="hud-label text-gold transition hover:text-gold-bright"
+        >
+          Translate →
+        </Link>
+      </div>
 
       <PageHeader
         eyebrow={`02 // Projects / ${project.slug}`}

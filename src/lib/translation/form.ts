@@ -73,7 +73,7 @@ export type TranslationReference = {
   } | null;
 };
 
-export type TranslatonProgress = { done: number; total: number };
+export type TranslationProgress = { done: number; total: number };
 
 function alignedList(stored: string[] | undefined, length: number): string[] {
   return Array.from({ length }, (_, index) => stored?.[index] ?? "");
@@ -264,7 +264,7 @@ export function toStoredTranslation(
 export function getTranslationProgress(
   reference: TranslationReference,
   values: TranslationFormValues,
-): TranslatonProgress {
+): TranslationProgress {
   let done = 0;
   let total = 0;
 

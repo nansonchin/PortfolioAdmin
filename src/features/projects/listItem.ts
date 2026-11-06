@@ -1,3 +1,4 @@
+import { TranslationProgress } from "@/lib/translation/form";
 import { AdminProject } from "@/types/project";
 
 export type ProjectListItem = Pick<
@@ -11,9 +12,11 @@ export type ProjectListItem = Pick<
   | "status"
   | "sortOrder"
   | "technologies"
->;
+>&{
+  translation?:TranslationProgress
+};
 
-export function toListItem(project: AdminProject): ProjectListItem {
+export function toListItem(project: AdminProject,translation?: TranslationProgress): ProjectListItem {
   return {
     id: project.id,
     slug: project.slug,
@@ -23,6 +26,7 @@ export function toListItem(project: AdminProject): ProjectListItem {
     featured:project.featured,
     status:project.status,
     sortOrder:project.sortOrder,
-    technologies:project.technologies
+    technologies:project.technologies,
+    translation
   };
 }

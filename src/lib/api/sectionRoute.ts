@@ -21,20 +21,20 @@ type SafeParser<T> = {
       };
 };
 
-type SectionPutOptions<T, V> = {
+type SectionPutOptions<T,R, V> = {
   schema: SafeParser<T>;
-  update: (id: string, data: T) => Promise<AdminProject | null>;
-  toValues: (project: AdminProject) => V;
+  update: (id: string, data: T) => Promise<R | null>;
+  toValues: (result: R) => V;
  
   mapError?: (error: unknown) => NextResponse | null;
 };
 
-export function createSectionPutHandler<T, V>({
+export function createSectionPutHandler<T,R, V>({
   schema,
   update,
   toValues,
   mapError,
-}: SectionPutOptions<T, V>) {
+}: SectionPutOptions<T,R, V>) {
   return async function PUT(request: Request, { params }: RouteContext) {
     const session = await getSession();
     if (!session) {
@@ -62,7 +62,7 @@ export function createSectionPutHandler<T, V>({
       );
     }
 
-    try {
+     try {
       const updated = await update(id, result.data);
 
       if (!updated) {

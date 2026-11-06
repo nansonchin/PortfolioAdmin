@@ -5,14 +5,25 @@ import Panel from "@/components/ui/Panel";
 import { listProjects } from "@/lib/db/projectRepository";
 import { toListItem } from "@/features/projects/listItem";
 import ProjectTable from "@/features/projects/ProjectTable";
+import { listTranslations } from "@/lib/db/translationRepository";
+import { getTranslationProgress, toTranslationFormValues, toTranslationReference } from "@/lib/translation/form";
 
 export default async function ProjectsPage() {
   const session  = await getSession()
 
   if(!session) redirect("/login");
 
-  const projects = await listProjects()
-  const items = projects.map(toListItem)
+  const [projects,translations] = await Promise.all([listProjects(),listTranslations("zh")])
+  
+  const items = projects.map((project)=>
+    toListItem(
+      project,
+      getTranslationProgress(
+        toTranslationReference(project),
+        toTranslationFormValues(project,translations[project.id])
+      )
+    )
+  )
 
   return (
     <>
