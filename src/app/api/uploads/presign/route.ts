@@ -1,7 +1,7 @@
 import { getSession } from "@/app/lib/auth/getSession";
 import { getProjectById } from "@/lib/db/projectRepository";
 import { buildObjectKey } from "@/lib/storage/key";
-import { createUpload } from "@/lib/storage/presign";
+import { createUploadUrl } from "@/lib/storage/presign";
 import { issuesToFieldErrors } from "@/lib/validation/projectBasic";
 import { presignRequestSchema } from "@/lib/validation/upload";
 import { NextResponse } from "next/server";
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
   });
 
   try {
-    const uploadUrl = await createUpload({
+    const uploadUrl = await createUploadUrl({
       key,
       contentType,
       size,
