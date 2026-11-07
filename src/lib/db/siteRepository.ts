@@ -24,3 +24,37 @@ export async function listSiteRows(): Promise<SiteRows>{
     developerContextZh: find<DeveloperContextTranslation>("developer_context", "zh"),
   };
 }
+
+export async function getSiteDocument<T>(
+  key: SiteRow["key"],
+  lang: SiteRow["lang"],
+): Promise<T | undefined> {
+  const { data, error } = await getSupabase()
+    .from("site_content")
+    .select("data")
+    .eq("key", key)
+    .eq("lang", lang)
+    .maybeSingle<{ data: T }>();
+
+  if (error) {
+    throw new Error(`Failed to read Site DOcument：${error.message}`);
+  }
+
+  return data?.data;
+}
+
+export async function saveSiteDocument<T>(
+  key: SiteRow["key"],
+  lang: SiteRow["lang"],
+  value: T,
+): Promise<T> {
+  const { error } = await getSupabase()
+    .from("site_content")
+    .upsert({ key, lang, data: value }, { onConflict: "key,lang" });
+
+  if (error) {
+    throw new Error(`Failed to save ：${error.message}`);
+  }
+
+  return value;
+}

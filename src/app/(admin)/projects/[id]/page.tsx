@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import {
   getProjectById,
-  listTechnologySuggestion,
+  listTechnologySuggestions,
 } from "@/lib/db/projectRepository";
 import { toFormValues } from "@/features/projects/basicForm";
 import PageHeader from "@/components/ui/PageHeader";
@@ -30,7 +30,7 @@ export default async function EditProjectPage({ params }: PageProps) {
 
   const [project, technologySuggestions] = await Promise.all([
     getProjectById(id),
-    listTechnologySuggestion(),
+    listTechnologySuggestions(),
   ]);
 
   if (!project) notFound();

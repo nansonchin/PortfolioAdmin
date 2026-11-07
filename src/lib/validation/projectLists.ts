@@ -2,7 +2,7 @@ import { z } from "zod";
 import { issuesToFieldErrors } from "./projectBasic";
 import type { ValidationResult } from "./shared";
 
-function cleanItems(items: string[]): string[] {
+export function cleanItems(items: string[]): string[] {
   return items.map((item) => item.trim()).filter((item) => item !== "");
 }
 

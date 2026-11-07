@@ -79,7 +79,7 @@ export async function updateProjectLists(
     return data? rowToProject(data):null
 }
 
-export async function listTechnologySuggestion():Promise<string[]>{
+export async function listTechnologySuggestions():Promise<string[]>{
       const { data, error } = await getSupabase()
     .from("projects")
     .select("technologies")
