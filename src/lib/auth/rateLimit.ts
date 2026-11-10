@@ -29,8 +29,6 @@ export async function isLoginBlocked(ip: string): Promise<boolean> {
   ]);
 
   if(perIp.error|| global.error){
-    console.log("perIp",perIp)
-    console.log("global",global)
 
     throw new Error(`Failed to read Login Attept Record: ${perIp.error?.message ?? global.error?.message}`)
   }
