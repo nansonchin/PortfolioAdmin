@@ -2,8 +2,26 @@ import { NextResponse } from "next/server";
 import { verifyAdminCredentials } from "@/app/lib/auth/password";
 import { signSession } from "@/app/lib/auth/session";
 import { COOKIE_NAME, SESSION_SECONDS } from "@/app/lib/auth/config";
+import { getClientIp, isLoginBlocked, recordLoginAttempt } from "@/lib/auth/rateLimit";
 
 export async function POST(request:Request){
+    const ip = getClientIp(request);
+
+    try{
+        if(await isLoginBlocked(ip)){
+            return NextResponse.json({
+                error:"Too many failed attemppts, Please try again in 15 mins"
+            },{status:429})
+        }
+    }catch(error){
+        console.error(error)
+        return NextResponse.json({
+            error:"Login is temporarily unavailable"
+        },{
+            status:503
+        })
+    }
+
     let body:unknown;
     try{
         body = await request.json()
@@ -21,6 +39,8 @@ export async function POST(request:Request){
     }
 
     const sub = await verifyAdminCredentials(username,password)
+
+    await recordLoginAttempt(ip,sub!==null).catch((error)=>console.error(error))
 
     if(!sub){
         return NextResponse.json({error:"Invalid credentials"},{status:401});
@@ -40,7 +60,3 @@ export async function POST(request:Request){
 
     return response;
 }
-
-export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/auth).*)"],
-};
