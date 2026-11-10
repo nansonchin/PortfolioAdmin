@@ -1,7 +1,5 @@
 // src/app/(admin)/dashboard/page.tsx
 
-export const dynamic = "force-dynamic";
-
 import { redirect } from "next/navigation";
 import { listProjects } from "@/lib/db/projectRepository";
 import PageHeader from "@/components/ui/PageHeader";
@@ -9,8 +7,11 @@ import Panel from "@/components/ui/Panel";
 import StatCard from "@/components/ui/StatCard";
 import { getProjectStats, getTopTechnologies } from "@/app/features/projects/stat";
 import { getSession } from "@/app/lib/auth/getSession";
+import { connection } from "next/server";
 
 export default async function DashboardPage() {
+  await connection();
+  
   const session = await getSession();
   if (!session) redirect("/login");
 
