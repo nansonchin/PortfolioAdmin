@@ -1,5 +1,7 @@
 // src/app/(admin)/dashboard/page.tsx
 
+export const dynamic = "force-dynamic";
+
 import { redirect } from "next/navigation";
 import { listProjects } from "@/lib/db/projectRepository";
 import PageHeader from "@/components/ui/PageHeader";
