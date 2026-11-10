@@ -1,6 +1,6 @@
-import { createS3Client, readS3Config } from "@/lib/storage/s3Client";
 import { Bucket$, PutObject$, PutObjectCommand } from "@aws-sdk/client-s3";
 import { loadEnv } from "../lib/env/loadEnv";
+import { createS3Client, readS3Config } from "../src/lib/storage/s3Client";
 
 async function main(){
     loadEnv()
