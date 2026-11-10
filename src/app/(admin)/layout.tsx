@@ -3,10 +3,21 @@ import { getSession } from "../lib/auth/getSession";
 import Sidebar from "../features/shell/Sidebar";
 import Topbar from "../features/shell/Topbar";
 import { connection } from "next/server";
+import { Suspense } from "react";
 
-export default async function AdminLayout({
+export default function AdminLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <AdminShell>{children}</AdminShell>
+    </Suspense>
+  );
+}
+
+export async function AdminShell({
+  children,
+}: { children: React.ReactNode }) {
   await connection();
   const session = await getSession();
   if (!session) redirect("/login");
