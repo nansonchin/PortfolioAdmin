@@ -1,8 +1,9 @@
 import { getSession } from "@/app/lib/auth/getSession";
 import { publishNow } from "@/lib/publish/service";
-import { NextResponse } from "next/server";
+import { connection, NextResponse } from "next/server";
 
 export async function POST() {
+  await connection()
   const session = await getSession();
 
   if (!session) {

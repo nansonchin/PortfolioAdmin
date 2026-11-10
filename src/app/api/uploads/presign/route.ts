@@ -4,11 +4,12 @@ import { buildObjectKey } from "@/lib/storage/key";
 import { createUploadUrl } from "@/lib/storage/presign";
 import { issuesToFieldErrors } from "@/lib/validation/projectBasic";
 import { presignRequestSchema } from "@/lib/validation/upload";
-import { NextResponse } from "next/server";
+import { connection, NextResponse } from "next/server";
 
 const UPLOAD_URL_TTL_SECONDS = 60;
 
 export async function POST(request: Request) {
+  await connection()
   const session = await getSession();
   if (!session) {
     return NextResponse.json(

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { connection, NextResponse } from "next/server";
 import { DuplicateSlugError, updateProjectBasic, updateProjectFlags } from "@/lib/db/projectRepository";
 import { toListItem } from "@/features/projects/listItem";
 import type { ProjectFlagsPatch } from "@/types/project";
@@ -10,7 +10,7 @@ import { createSectionPutHandler } from "@/lib/api/sectionRoute";
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function PATCH(request: Request, { params }: RouteContext) {
-
+await connection()
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

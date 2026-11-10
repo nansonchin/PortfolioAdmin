@@ -1,7 +1,7 @@
 // src/lib/api/sectionRoute.ts
 
 import "server-only";
-import { NextResponse } from "next/server";
+import { connection, NextResponse } from "next/server";
 import { issuesToFieldErrors } from "@/lib/validation/projectBasic";
 import type { AdminProject } from "@/types/project";
 import { getSession } from "@/app/lib/auth/getSession";
@@ -36,6 +36,7 @@ export function createSectionPutHandler<T,R, V>({
   mapError,
 }: SectionPutOptions<T,R, V>) {
   return async function PUT(request: Request, { params }: RouteContext) {
+    await connection()
     const session = await getSession();
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

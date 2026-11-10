@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { connection, NextResponse } from "next/server";
 import { prepareSnapshot } from "@/lib/publish/service";
 import { getSession } from "@/app/lib/auth/getSession";
 
 export async function GET(request: Request) {
+  await connection()
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

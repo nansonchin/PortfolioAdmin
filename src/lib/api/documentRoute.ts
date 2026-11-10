@@ -1,5 +1,5 @@
 import "server-only";
-import { NextResponse } from "next/server";
+import { connection, NextResponse } from "next/server";
 import { getSession } from "@/app/lib/auth/getSession";
 import { issuesToFieldErrors } from "@/lib/validation/projectBasic";
 
@@ -21,6 +21,7 @@ export function createDocumentPutHandler<T, V>(options: {
   save: (data: T) => Promise<V>;
 }) {
   return async function PUT(request: Request) {
+    await connection()
     const session = await getSession();
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
