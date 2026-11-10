@@ -11,12 +11,14 @@ import {
 } from "@/lib/translation/form";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { connection } from "next/server";
 
 type PageProps = {
   params: Promise<{ id: string }>;
 };
 
 export default async function TranslatePage({ params }: PageProps) {
+  await connection();
   const session = await getSession();
   if (!session) {
     redirect("/login");

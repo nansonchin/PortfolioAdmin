@@ -21,8 +21,10 @@ import type {
   Profile,
   ProfileTranslation,
 } from "@/types/site";
+import { connection } from "next/server";
 
 export default async function ProfileTranslatePage() {
+  await connection();
   const session = await getSession();
   if (!session) redirect("/login");
 

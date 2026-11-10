@@ -2,10 +2,12 @@ import { redirect } from "next/navigation";
 import { getSession } from "../lib/auth/getSession";
 import Sidebar from "../features/shell/Sidebar";
 import Topbar from "../features/shell/Topbar";
+import { connection } from "next/server";
 
 export default async function AdminLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  await connection();
   const session = await getSession();
   if (!session) redirect("/login");
 

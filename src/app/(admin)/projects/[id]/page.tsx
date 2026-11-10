@@ -19,10 +19,12 @@ import ProjectArchitectureForm from "@/features/projects/ProjectArchitectureForm
 import { toArchitectureFormValues } from "@/features/projects/architectureForm";
 import ProjectCoverForm from "@/features/projects/ProjectCoverForm";
 import { toCoverFormValues } from "@/features/projects/coverForm";
+import { connection } from "next/server";
 
 type PageProps = { params: Promise<{ id: string }> };
 
 export default async function EditProjectPage({ params }: PageProps) {
+  await connection();
   const session = await getSession();
   if (!session) redirect("/login");
 

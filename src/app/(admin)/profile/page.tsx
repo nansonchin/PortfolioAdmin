@@ -11,8 +11,10 @@ import PageHeader from "@/components/ui/PageHeader";
 import Panel from "@/components/ui/Panel";
 import type { DeveloperContext, Profile } from "@/types/site";
 import { listTechnologySuggestions } from "@/lib/db/projectRepository";
+import { connection } from "next/server";
 
 export default async function ProfilePage() {
+  await connection();
   const session = await getSession();
   if (!session) redirect("/login");
 
