@@ -1,41 +1,71 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Link from "@/components/transition/TransitionLink";
+import { useTransitionState } from "@/components/transition/TransitionProvider";
+import HexRing from "@/components/ui/HexRing";
 import { NAV_ITEMS } from "./navItem";
+
+function Hex({ filled }: { filled: boolean }) {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden className="shrink-0">
+      <polygon
+        points="6,0.8 10.5,3.4 10.5,8.6 6,11.2 1.5,8.6 1.5,3.4"
+        fill={filled ? "currentColor" : "none"}
+        stroke="currentColor"
+        strokeWidth="1"
+      />
+    </svg>
+  );
+}
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { target } = useTransitionState();
+
+  // While the shutter is down, highlight where we are going, not where we were.
+  const current = target ?? pathname;
 
   return (
-    <aside className="relative z-20 border-b border-line bg-ink-2/80 backdrop-blur md:sticky md:top-0 md:h-screen md:w-64 md:shrink-0 md:border-b-0 md:border-r">
-      <div className="px-6 py-6">
-        <p className="hud-label text-gold-dim">Portfolio //</p>
-        <p className="font-display text-4xl leading-none text-paper">Admin</p>
+    <aside className="tex-dark relative z-20 shrink-0 border-b border-ice/25 text-white md:flex md:h-full md:w-60 md:flex-col md:border-r md:border-b-0">
+      <div className="px-6 pt-7 pb-5 md:pt-9 md:pb-8">
+        <p className="hud-caps text-ice">Portfolio</p>
+        <p className="mt-1 font-display text-4xl leading-none font-semibold tracking-wide uppercase">Admin</p>
+        <div aria-hidden className="mt-4 flex items-center gap-2">
+          <span className="h-px w-10 bg-ice/60" />
+          <span className="size-1.5 rotate-45 bg-amber" />
+        </div>
       </div>
 
-      <nav className="flex gap-1 overflow-x-auto px-3 pb-4 md:flex-col md:pb-0">
+      <nav className="flex gap-px overflow-x-auto px-3 pb-3 md:flex-col md:pb-0">
         {NAV_ITEMS.map((item) => {
-          const active =
-            pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const active = current === item.href || current.startsWith(`${item.href}/`);
 
           return (
             <Link
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`hud-label flex items-center gap-3 border-l-2 px-4 py-3 whitespace-nowrap transition ${
-                active
-                  ? "border-gold bg-gold/10 text-gold"
-                  : "border-transparent text-muted hover:text-paper"
+              className={`flex items-center gap-3 px-5 py-2.5 font-display text-base font-semibold tracking-[0.12em] whitespace-nowrap uppercase transition-colors ${
+                active ? "para bg-ice/15 text-white" : "text-white/55 hover:text-white"
               }`}
             >
-              <span className="text-gold-dim">{item.index}</span>
+              <span className={active ? "text-amber" : "text-white/40"}>
+                <Hex filled={active} />
+              </span>
               {item.label}
             </Link>
           );
         })}
       </nav>
+
+      <div className="relative mt-auto hidden h-32 overflow-hidden md:block">
+        <HexRing size={150} className="absolute -bottom-8 -left-5 opacity-40" />
+        <div className="absolute bottom-5 left-6 z-10">
+          <p className="font-system text-[11px] tracking-[0.15em] text-ice/70">// ADMIN</p>
+          <p className="mt-1 font-system text-[11px] tracking-[0.15em] text-ice/70">» CONSOLE ONLINE</p>
+        </div>
+      </div>
     </aside>
   );
 }

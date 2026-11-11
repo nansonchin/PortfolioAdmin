@@ -11,8 +11,8 @@ type FormActionsProps = {
 export default function FormActions({ dirty, saving, message, onDiscard }: FormActionsProps) {
   return (
     <div className="flex flex-wrap items-center gap-4 border-t border-line pt-6">
-      <Button type="submit" disabled={!dirty || saving}>
-        {saving ? "Saving..." : "Save changes"}
+      <Button type="submit" disabled={!dirty} loading={saving}>
+        {saving ? "Saving…" : "Save changes"}
       </Button>
 
       {dirty && !saving && (
@@ -21,7 +21,12 @@ export default function FormActions({ dirty, saving, message, onDiscard }: FormA
         </Button>
       )}
 
-      {dirty && !message && <span className="hud-label text-gold-dim">Unsaved changes</span>}
+      {dirty && !message && !saving && (
+        <span className="hud-label flex items-center gap-2 text-gold-dim">
+          <span className="inline-block size-2 bg-amber" />
+          Unsaved changes
+        </span>
+      )}
 
       {message && (
         <span

@@ -1,57 +1,109 @@
-
 @import "tailwindcss";
 
 @theme inline {
-  --color-ink: #0a0908;
-  --color-ink-2: #12100d;
-  --color-gold: #c9a96e;
-  --color-gold-bright: #d8bd83;
-  --color-gold-dim: #8c7a52;
-  --color-paper: #e8e2d0;
-  --color-muted: #8a8578;
-  --color-alert: #c8452f;
-  --color-line: rgb(201 169 110 / 0.18);
+  --color-ink: #f3f6f9;
+  --color-ink-2: rgb(255 255 255 / 0.9);
+  --color-paper: #1c1c1e;
+  --color-gold: #386b91;
+  --color-gold-bright: #264f70;
+  --color-gold-dim: #5a6877;
+  --color-muted: #66707b;
+  --color-alert: #c23b55;
+  --color-line: rgb(56 107 145 / 0.22);
 
-  --font-display: var(--nf-display), "Noto Serif SC", "Times New Roman", serif;
+  --color-pearl: #ffffff;
+  --color-sky: #9cbdd4;
+  --color-ice: #b0cbe8;
+  --color-lav: #868eb8;
+  --color-slate: #979fa9;
+  --color-violet: #7a68a6;
+  --color-charcoal: #1c1c1e;
+  --color-deep: #060a19;
+  --color-navy: #0a1632;
+  --color-navy-2: #162341;
+  --color-amber: #edc47d;
+
+  --font-display: var(--nf-display), "Noto Sans SC", system-ui, sans-serif;
   --font-system: var(--nf-system), "Noto Sans SC", ui-monospace, Menlo, Consolas, monospace;
   --font-body: var(--nf-body), "Noto Sans SC", system-ui, sans-serif;
 }
 
 :root {
-  --cut: 14px;
-  --cut-inner:calc(var(--cut) - 0.586px)
+  --cut: 12px;
+  --cut-inner: calc(var(--cut) - 0.586px);
+  --ease-door: cubic-bezier(0.77, 0, 0.18, 1);
 }
-
 
 html,
 body {
   height: 100%;
 }
 
+html {
+  isolation: isolate;
+}
+
 body {
-  background: var(--color-ink);
   color: var(--color-paper);
+  background-color: #eef2f6;
+}
+
+/* ink wash: soft sky / violet bleeds */
+html::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 88% 0%, rgb(156 189 212 / 0.6), transparent 70%),
+    radial-gradient(50% 45% at 0% 100%, rgb(122 104 166 / 0.18), transparent 70%),
+    radial-gradient(34% 30% at 52% 42%, rgb(255 255 255 / 0.75), transparent 70%);
+}
+
+/* halftone dots, strongest in the top-right corner */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgb(56 107 145 / 0.4) 1.1px, transparent 1.5px);
+  background-size: 7px 7px;
+  -webkit-mask-image:
+    radial-gradient(60% 55% at 100% 0%, #000, transparent 75%),
+    radial-gradient(45% 40% at 0% 100%, rgb(0 0 0 / 0.55), transparent 75%);
+  mask-image:
+    radial-gradient(60% 55% at 100% 0%, #000, transparent 75%),
+    radial-gradient(45% 40% at 0% 100%, rgb(0 0 0 / 0.55), transparent 75%);
+}
+
+/* scanlines over everything (including the shutter) */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgb(28 28 30 / 0.045) 0 1px, transparent 1px 3px);
 }
 
 ::selection {
-  background: var(--color-gold-bright);
-  color: var(--color-ink);
+  background: var(--color-sky);
+  color: var(--color-charcoal);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
 }
 
 @layer components {
-
+  /* corner-cut panels */
   .chamfer {
-    clip-path: polygon(
-      0 0,
-      calc(100% - var(--cut)) 0,
-      100% var(--cut),
-      100% 100%,
-      var(--cut) 100%,
-      0 calc(100% - var(--cut))
-    );
+    clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, var(--cut) 100%, 0 calc(100% - var(--cut)));
   }
-
-.chamfer-inner {
+  .chamfer-inner {
     clip-path: polygon(
       0 0,
       calc(100% - var(--cut-inner)) 0,
@@ -62,42 +114,81 @@ body {
     );
   }
 
-  .halftone {
-    background-image: radial-gradient(
-      circle,
-      rgb(201 169 110 / 0.16) 1px,
-      transparent 1.5px
-    );
-    background-size: 8px 8px;
+  /* parallelogram (buttons, active nav item) */
+  .para {
+    clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+  }
+  .para-inner {
+    clip-path: polygon(11px 0, 100% 0, calc(100% - 11px) 100%, 0 100%);
   }
 
-  .scanlines {
-    position: relative;
-  }
-  .scanlines::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: repeating-linear-gradient(
-      to bottom,
-      rgb(0 0 0 / 0) 0,
-      rgb(0 0 0 / 0) 3px,
-      rgb(0 0 0 / 0.22) 4px
-    );
+  /* kept so older markup does not break; the look is flat on purpose */
+  .drop-shadow-panel {
+    filter: none;
   }
 
-  .ink-wash {
+  /* dark surface with halftone + scanlines (sidebar, 404) */
+  .tex-dark {
+    background-color: var(--color-deep);
     background-image:
-      radial-gradient(60% 50% at 15% 10%, rgb(201 169 110 / 0.14), transparent 70%),
-      radial-gradient(45% 40% at 90% 35%, rgb(140 122 82 / 0.12), transparent 70%),
-      radial-gradient(70% 60% at 50% 110%, rgb(201 169 110 / 0.10), transparent 70%);
+      radial-gradient(circle, rgb(156 189 212 / 0.2) 1px, transparent 1.4px),
+      repeating-linear-gradient(0deg, rgb(255 255 255 / 0.035) 0 1px, transparent 1px 3px);
+    background-size: 8px 8px, auto;
   }
 
+  /* label voices */
   .hud-label {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+  .hud-caps {
     font-family: var(--font-system);
     font-size: 0.6875rem;
     letter-spacing: 0.22em;
     text-transform: uppercase;
+  }
+
+  /* heavy block lettering eroded by halftone dots (404, big numerals) */
+  .etched {
+    position: relative;
+  }
+  .etched::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    color: transparent;
+    pointer-events: none;
+    background-image: radial-gradient(circle, var(--color-deep) 1.7px, transparent 2px);
+    background-size: 8px 8px;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-mask-image: linear-gradient(115deg, transparent 30%, #000 95%);
+    mask-image: linear-gradient(115deg, transparent 30%, #000 95%);
+  }
+
+  /* button loading bar */
+  .btn-sweep {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 40%;
+    background: var(--color-ice);
+    animation: sweep 1s var(--ease-door) infinite;
+  }
+
+  @keyframes sweep {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(270%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn-sweep {
+      animation-duration: 2.6s;
+    }
   }
 }

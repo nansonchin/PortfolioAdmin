@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Panel from "@/components/ui/Panel";
+import Select from "@/components/ui/Select";
 import Toggle from "@/components/ui/Toggle";
 import type { ProjectFlagsPatch } from "@/types/project";
 import {
@@ -14,10 +15,7 @@ import {
   type ProjectFilters,
 } from "./filter";
 import type { ProjectListItem } from "./listItem";
-import Link from "next/link";
-
-const controlClass =
-  "border border-line bg-ink px-3 py-2 text-paper outline-none transition focus:border-gold";
+import Link from "@/components/transition/TransitionLink";
 
 export default function ProjectTable({
   initialItems,
@@ -96,44 +94,37 @@ export default function ProjectTable({
       tag={`${visibleItems.length} of ${items.length}`}
     >
       <div className="mb-6 flex flex-wrap items-center gap-3">
-        <input
-          type="search"
-          value={filters.query}
-          onChange={(event) => updateFilter("query", event.target.value)}
-          placeholder="Search title, tech, category..."
-          aria-label="Search projects"
-          className={`${controlClass} min-w-56 flex-1`}
+        <div className="chamfer min-w-56 flex-1 bg-line p-px transition-colors focus-within:bg-gold">
+          <input
+            type="search"
+            value={filters.query}
+            onChange={(event) => updateFilter("query", event.target.value)}
+            placeholder="Search title, tech, category..."
+            aria-label="Search projects"
+            className="chamfer-inner w-full bg-ink px-4 py-2 text-paper outline-none placeholder:text-gold-dim"
+          />
+        </div>
+
+        <Select
+          label="Filter by status"
+          value={filters.status}
+          onChange={(value) => updateFilter("status", value as ProjectFilters["status"])}
+          options={[
+            { value: ALL, label: "All status" },
+            { value: "published", label: "Published" },
+            { value: "draft", label: "Draft" },
+          ]}
         />
 
-        <select
-          value={filters.status}
-          onChange={(event) =>
-            updateFilter(
-              "status",
-              event.target.value as ProjectFilters["status"],
-            )
-          }
-          aria-label="Filter by status"
-          className={controlClass}
-        >
-          <option value={ALL}>All status</option>
-          <option value="published">Published</option>
-          <option value="draft">Draft</option>
-        </select>
-
-        <select
+        <Select
+          label="Filter by category"
           value={filters.category}
-          onChange={(event) => updateFilter("category", event.target.value)}
-          aria-label="Filter by category"
-          className={controlClass}
-        >
-          <option value={ALL}>All categories</option>
-          {categories.map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
+          onChange={(value) => updateFilter("category", value)}
+          options={[
+            { value: ALL, label: "All categories" },
+            ...categories.map((category) => ({ value: category, label: category })),
+          ]}
+        />
 
         <label className="hud-label flex items-center gap-3 text-muted">
           <Toggle
@@ -165,14 +156,14 @@ export default function ProjectTable({
           <table className="w-full min-w-[720px] text-left">
             <thead>
               <tr className="hud-label border-b border-line text-gold-dim">
-                <th className="py-3 pr-4 font-normal">#</th>
-                <th className="py-3 pr-4 font-normal">Title</th>
-                <th className="py-3 pr-4 font-normal">Year</th>
-                <th className="py-3 pr-4 font-normal">Category</th>
-                <th className="py-3 pr-4 font-normal">Featured</th>
-                <th className="py-3 pr-4 font-normal">Status</th>
-                <th className="py-3 pr-4 font-nowmal">中文</th>
-                <th className="py-3 font-normal">Action</th>
+                <th className="py-3 pr-4 font-medium">#</th>
+                <th className="py-3 pr-4 font-medium">Title</th>
+                <th className="py-3 pr-4 font-medium">Year</th>
+                <th className="py-3 pr-4 font-medium">Category</th>
+                <th className="py-3 pr-4 font-medium">Featured</th>
+                <th className="py-3 pr-4 font-medium">Status</th>
+                <th className="py-3 pr-4 font-medium">中文</th>
+                <th className="py-3 font-medium">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -224,10 +215,8 @@ export default function ProjectTable({
                           label={`Published: ${item.title}`}
                         />
                         <span
-                          className={`hud-label ${
-                            item.status === "published"
-                              ? "text-gold"
-                              : "text-alert"
+                          className={`hud-caps ${
+                            item.status === "published" ? "text-gold" : "text-gold-dim"
                           }`}
                         >
                           {item.status}

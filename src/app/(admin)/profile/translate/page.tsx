@@ -1,6 +1,6 @@
 // src/app/(admin)/profile/translate/page.tsx
 
-import Link from "next/link";
+import Link from "@/components/transition/TransitionLink";
 import { redirect } from "next/navigation";
 import { getSession } from "@/app/lib/auth/getSession";
 import { getSiteDocument } from "@/lib/db/siteRepository";

@@ -2,6 +2,7 @@
 
 import { ValidationResult } from "@/lib/validation/shared";
 import { useRouter } from "next/navigation";
+import { useUnsavedGuard } from "@/components/transition/TransitionProvider";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 export type FormMessage = { type: "ok" | "error"; text: string };
@@ -29,6 +30,8 @@ export function useSectionForm<V extends Record<string, unknown>>({
     () => JSON.stringify(values) !== JSON.stringify(saved),
     [values, saved],
   );
+
+  useUnsavedGuard(dirty);
 
   useEffect(() => {
     if (!dirty) {

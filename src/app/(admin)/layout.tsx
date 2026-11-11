@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "../lib/auth/getSession";
 import Sidebar from "../features/shell/Sidebar";
 import Topbar from "../features/shell/Topbar";
+import TransitionStage from "@/components/transition/TransitionStage";
 import { connection } from "next/server";
 import { Suspense } from "react";
 
@@ -15,27 +16,22 @@ export default function AdminLayout({
   );
 }
 
-export async function AdminShell({
-  children,
-}: { children: React.ReactNode }) {
+export async function AdminShell({ children }: { children: React.ReactNode }) {
   await connection();
   const session = await getSession();
   if (!session) redirect("/login");
 
+  // The shell is fixed to the viewport. Only the area inside <TransitionStage> scrolls
+  // and only that area is covered by the shutter; sidebar and top bar stay live.
   return (
-    <div className="halftone ink-wash scanlines relative flex min-h-screen flex-col md:flex-row">
-      <span
-        aria-hidden
-        className="pointer-events-none fixed top-24 right-6 hidden font-display text-[18rem] leading-none text-gold/[0.5] select-none md:block [writing-mode:vertical-rl]"
-      >
-        玄墨
-      </span>
-
+    <div className="flex h-dvh flex-col overflow-hidden md:flex-row">
       <Sidebar />
 
-      <div className="relative z-10 flex min-w-0 flex-1 flex-col">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <Topbar username={session.sub} />
-        <main className="flex-1 px-6 py-8 md:px-10">{children}</main>
+        <TransitionStage>
+          <main className="mx-auto w-full max-w-6xl px-6 py-8 md:px-10">{children}</main>
+        </TransitionStage>
       </div>
     </div>
   );

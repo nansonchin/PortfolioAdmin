@@ -9,7 +9,7 @@ import {
   toTranslationFormValues,
   toTranslationReference,
 } from "@/lib/translation/form";
-import Link from "next/link";
+import Link from "@/components/transition/TransitionLink";
 import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
 

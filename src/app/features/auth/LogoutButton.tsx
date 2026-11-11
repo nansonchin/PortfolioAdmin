@@ -1,20 +1,26 @@
 "use client";
 
 import Button from "@/components/ui/Button";
-import { useRouter } from "next/navigation";
+import { useTransitionRouter } from "@/components/transition/TransitionProvider";
 
 export default function LogoutButton() {
-  const router = useRouter();
+  const { navigate } = useTransitionRouter();
 
-  async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.replace("/login");
-    router.refresh();
+  function handleLogout() {
+    navigate("/login", {
+      replace: true,
+      refresh: true,
+      skipGuard: false,
+      label: "Signing out",
+      before: async () => {
+        await fetch("/api/auth/logout", { method: "POST" });
+      },
+    });
   }
 
   return (
-   <Button variant="ghost" onClick={handleLogout}>
-    Log Out
-   </Button>
+    <Button variant="ghost" onClick={handleLogout}>
+      Log out
+    </Button>
   );
 }

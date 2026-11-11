@@ -2,10 +2,11 @@
 
 
 import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import Button from "@/components/ui/Button";
+import { useTransitionRouter } from "@/components/transition/TransitionProvider";
 
 export default function LoginForm() {
-  const router = useRouter();
+  const { navigate } = useTransitionRouter();
 
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false); 
@@ -26,8 +27,12 @@ export default function LoginForm() {
       });
 
       if (response.ok) {
-        router.replace("/dashboard");
-        router.refresh();
+        navigate("/dashboard", {
+          replace: true,
+          refresh: true,
+          skipGuard: true,
+          label: "Access granted",
+        });
         return;
       }
 
@@ -72,13 +77,9 @@ export default function LoginForm() {
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="chamfer hud-label w-full bg-gold px-6 py-3 text-ink transition hover:bg-gold-bright disabled:opacity-50"
-      >
-        {pending ? "Authenticating..." : "Enter"}
-      </button>
+      <Button type="submit" loading={pending} className="w-full">
+        {pending ? "Authenticating…" : "Enter"}
+      </Button>
     </form>
   );
 }
