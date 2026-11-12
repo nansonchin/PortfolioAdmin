@@ -12,6 +12,6 @@ export function toFormValues(project: AdminProject): ProjectBasicFormValues {
     githubUrl: project.githubUrl,
     demoUrl: project.demoUrl ?? "",
     featured: project.featured,
-    status: project.status,
+    status: project.status === "published" ? "published" : "draft",
   };
 }

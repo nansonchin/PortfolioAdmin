@@ -1,4 +1,3 @@
-
 export type ResponsiveImage = {
   src: string;
   srcSet?: string;
@@ -56,27 +55,38 @@ export interface Project {
   architecture?: ProjectArchitecture;
 }
 
-export type ProjectStatus = "draft" | "published";
+export type ProjectStatus = "draft" | "published" | "deleted";
+
+export type EditableStatus = Exclude<ProjectStatus, "deleted">;
 
 export interface AdminProject extends Project {
   status: ProjectStatus;
   sortOrder: number;
 }
 
-export type ProjectFlagsPatch = Partial<Pick<AdminProject, "featured" | "status">>
+export type ProjectFlagsPatch =  { featured?: boolean; status?: EditableStatus };
 
 export type ProjectBasic = Pick<
   Project,
-  "title" | "slug" | "summary" | "description" | "year" | "category" | "githubUrl" | "demoUrl"
-> &
-  Pick<AdminProject, "featured" | "status">;
+  | "title"
+  | "slug"
+  | "summary"
+  | "description"
+  | "year"
+  | "category"
+  | "githubUrl"
+  | "demoUrl"
+> &{featured:boolean; status:EditableStatus};
 
-  export type ProjectLists = Pick<Project,"technologies" | "features" | "responsibilities" | "challenges" | "solutions">
+export type ProjectLists = Pick<
+  Project,
+  "technologies" | "features" | "responsibilities" | "challenges" | "solutions"
+>;
 
-  export type ProjectGallery = Pick<Project,"gallery">
+export type ProjectGallery = Pick<Project, "gallery">;
 
-  export type ProjectArchitectureSection ={
-    architecture:ProjectArchitecture | null
-  }
+export type ProjectArchitectureSection = {
+  architecture: ProjectArchitecture | null;
+};
 
-  export type ProjectCover = Pick<Project,"thumbnail" | "heroImage">
+export type ProjectCover = Pick<Project, "thumbnail" | "heroImage">;

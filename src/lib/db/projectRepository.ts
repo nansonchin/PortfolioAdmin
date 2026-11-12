@@ -27,6 +27,7 @@ export async function listProjects(): Promise<AdminProject[]> {
   const { data, error } = await getSupabase()
     .from("projects")
     .select("*")
+    .neq("status", "deleted")
     .order("sort_order", { ascending: true })
     .returns<ProjectRow[]>();
   if (error) {
@@ -45,6 +46,7 @@ export async function updateProjectFlags(
     .update(patch)
     .eq("id", id)
     .select("*")
+    .neq("status", "deleted")
     .maybeSingle<ProjectRow>();
 
   if (error) {
@@ -59,6 +61,7 @@ export async function getProjectById(id: string): Promise<AdminProject | null> {
     .from("projects")
     .select("*")
     .eq("id", id)
+    .neq("status", "deleted")
     .maybeSingle<ProjectRow>();
 
   if (error) {
@@ -84,6 +87,7 @@ export async function updateProjectBasic(
     .update(basicToRowPatch(input))
     .eq("id", id)
     .select("*")
+    .neq("status", "deleted")
     .maybeSingle<ProjectRow>();
 
   if (error) {
@@ -227,7 +231,72 @@ export async function createProject(
 
   if (error) {
     // if (error.code === "23505") throw new DuplicateSlugError();
+    if (error.code === "23505") {
+      const { data: deleted } = await supabase
+        .from("projects")
+        .select("id")
+        .eq("status", "deleted")
+        .or(`id.eq.${project.id},slug.eq.${project.slug}`)
+        .limit(1);
+
+      if (deleted && deleted.length > 0) {
+        throw new DeletedProjectExistsError();
+      }
+      throw new DuplicateSlugError();
+    }
     throw new Error(`Failed to add project：${error.message}`);
   }
   return rowToProject(data);
 }
+
+export class DeletedProjectExistsError extends Error {
+  constructor() {
+    super("A deleted project already use this name");
+    this.name = "DeletedProjectExistsError";
+  }
+}
+
+export async function listDeletedProjects(): Promise<AdminProject[]> {
+  const { data, error } = await getSupabase()
+    .from("projects")
+    .select("*")
+    .eq("status", "deleted")
+    .order("updated_at", { ascending: false })
+    .returns<ProjectRow[]>();
+  if (error) {
+    throw new Error(`Failed to read the deleted projects ${error.message}`);
+  }
+  return data.map(rowToProject);
+}
+
+export async function softDeleteProject(id: string): Promise<boolean> {
+  const { data, error } = await getSupabase()
+    .from("projects")
+    .update({ status: "deleted" })
+    .eq("id", id)
+    .neq("status", "deleted")
+    .select("id")
+    .maybeSingle<{ id: string }>();
+
+  if (error) {
+    throw new Error(`Failed to delete project：${error.message}`);
+  }
+
+  return data !== null;
+}
+
+export async function restoreProject(id:string):Promise<boolean>{
+  const {data,error}=  await getSupabase().from("projects")
+    .update({ status: "draft" })
+    .eq("id", id)
+    .eq("status", "deleted")
+    .select("id")
+    .maybeSingle<{ id: string }>();
+
+    if(error){
+      throw new Error(`Failed to restore Project : ${error.message}`)
+    }
+
+    return data!=null
+}
+

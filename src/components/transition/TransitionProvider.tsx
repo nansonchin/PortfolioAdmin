@@ -15,6 +15,8 @@ import { usePathname, useRouter } from "next/navigation";
 
 type Phase = "idle" | "closing" | "closed" | "opening";
 
+export class TransitionError extends Error {}
+
 export type NavigateOptions = {
   label?: string;
   replace?: boolean;
@@ -37,7 +39,8 @@ const OPEN_MS = 480; // keep in sync with --door-open
 const MIN_CLOSED_MS = 700; // never flash the door
 const TIMEOUT_MS = 10_000; // never trap the user behind it
 
-const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+const sleep = (ms: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 const fallback: TransitionApi = {
   navigate: (href) => window.location.assign(href),
@@ -51,7 +54,11 @@ export function useTransitionRouter() {
   return useContext(TransitionContext);
 }
 
-export type TransitionState = { phase: Phase; label: string; target: string | null };
+export type TransitionState = {
+  phase: Phase;
+  label: string;
+  target: string | null;
+};
 
 const TransitionStateContext = createContext<TransitionState>({
   phase: "idle",
@@ -76,8 +83,9 @@ export function useUnsavedGuard(dirty: boolean) {
 
 function labelFor(href: string): string {
   const path = href.split(/[?#]/)[0];
-   if (path === "/projects/new") return "Creating Project";
-  if (path.startsWith("/projects/") && path.endsWith("/translate")) return "Translation";
+  if (path === "/projects/new") return "Creating Project";
+  if (path.startsWith("/projects/") && path.endsWith("/translate"))
+    return "Translation";
   if (path.startsWith("/projects/")) return "Project editor";
   if (path === "/profile/translate") return "Profile translation";
   if (path === "/dashboard") return "Dashboard";
@@ -88,7 +96,11 @@ function labelFor(href: string): string {
   return "Loading";
 }
 
-export default function TransitionProvider({ children }: { children: ReactNode }) {
+export default function TransitionProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -160,7 +172,8 @@ export default function TransitionProvider({ children }: { children: ReactNode }
       }
 
       const url = new URL(href, window.location.href);
-      const go = () => (options.replace ? router.replace(href) : router.push(href));
+      const go = () =>
+        options.replace ? router.replace(href) : router.push(href);
 
       // Same page (query/hash only): nothing to wait for, no door.
       if (url.pathname === window.location.pathname && !options.before) {
@@ -170,7 +183,9 @@ export default function TransitionProvider({ children }: { children: ReactNode }
 
       void (async () => {
         setTarget(url.pathname);
-        const closedAt = await closeDoor(options.label ?? labelFor(url.pathname));
+        const closedAt = await closeDoor(
+          options.label ?? labelFor(url.pathname),
+        );
 
         try {
           await options.before?.();
@@ -190,9 +205,14 @@ export default function TransitionProvider({ children }: { children: ReactNode }
           go();
           if (options.refresh) router.refresh();
 
-          if (!(await arrived)) setNotice("The page took too long to load. Please try again.");
-        } catch {
-          setNotice("Something went wrong. Please try again.");
+          if (!(await arrived))
+            setNotice("The page took too long to load. Please try again.");
+        } catch(error) {
+          setNotice(
+            error instanceof TransitionError
+              ? error.message
+              : "Something went wrong. Please try again.",
+          );
         }
 
         await openDoor(closedAt);
@@ -228,16 +248,16 @@ export default function TransitionProvider({ children }: { children: ReactNode }
   return (
     <TransitionContext.Provider value={api}>
       <TransitionStateContext.Provider value={state}>
-      {children}
+        {children}
 
-      {notice && (
-        <div
-          role="alert"
-          className="chamfer fixed right-6 bottom-6 z-[110] max-w-sm border-l-4 border-alert bg-navy px-5 py-3 text-sm text-white"
-        >
-          {notice}
-        </div>
-      )}
+        {notice && (
+          <div
+            role="alert"
+            className="chamfer fixed right-6 bottom-6 z-[110] max-w-sm border-l-4 border-alert bg-navy px-5 py-3 text-sm text-white"
+          >
+            {notice}
+          </div>
+        )}
       </TransitionStateContext.Provider>
     </TransitionContext.Provider>
   );
