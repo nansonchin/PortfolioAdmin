@@ -76,6 +76,7 @@ export function useUnsavedGuard(dirty: boolean) {
 
 function labelFor(href: string): string {
   const path = href.split(/[?#]/)[0];
+   if (path === "/projects/new") return "Creating Project";
   if (path.startsWith("/projects/") && path.endsWith("/translate")) return "Translation";
   if (path.startsWith("/projects/")) return "Project editor";
   if (path === "/profile/translate") return "Profile translation";
