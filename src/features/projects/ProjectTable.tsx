@@ -51,7 +51,7 @@ export default function ProjectTable({
 
     const rollback: ProjectFlagsPatch = {};
     if (patch.featured !== undefined) rollback.featured = previous.featured;
-    if (patch.status !== undefined) rollback.status = previous.status;
+    if (patch.status !== undefined && previous.status !== "deleted") rollback.status = previous.status;
 
     setError(null);
     setSaving(id, true);

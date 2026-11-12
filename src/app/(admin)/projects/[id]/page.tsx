@@ -20,6 +20,7 @@ import { toArchitectureFormValues } from "@/features/projects/architectureForm";
 import ProjectCoverForm from "@/features/projects/ProjectCoverForm";
 import { toCoverFormValues } from "@/features/projects/coverForm";
 import { connection } from "next/server";
+import DeleteProjectButton from "@/features/projects/DeleteProjectButton";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -39,8 +40,11 @@ export default async function EditProjectPage({ params }: PageProps) {
 
   return (
     <>
-           <div className="mb-4 flex items-center justify-between">
-        <Link href="/projects" className="hud-label text-gold-dim transition hover:text-gold">
+      <div className="mb-4 flex items-center justify-between">
+        <Link
+          href="/projects"
+          className="hud-label text-gold-dim transition hover:text-gold"
+        >
           ← Projects
         </Link>
         <Link
@@ -104,6 +108,17 @@ export default async function EditProjectPage({ params }: PageProps) {
             projectId={project.id}
             initialValues={toArchitectureFormValues(project)}
           />
+        </Panel>
+        <Panel title="Danger zone" tag="reversible">
+          <p className="text-sm text-muted">
+            Deleting hides this project from the admin, and removes it from the
+            portfolio the next time you publish. Its images and translations are
+            kept, and you can restore it from the Deleted list on the Projects
+            page.
+          </p>
+          <div className="mt-4">
+            <DeleteProjectButton projectId={project.id} title={project.title} />
+          </div>
         </Panel>
       </div>
     </>
