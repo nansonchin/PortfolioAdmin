@@ -38,9 +38,10 @@ export type ProjectRow = {
   sort_order: number;
   created_at: string;
   updated_at: string;
+  deleted_at: string | null;
 };
 
-export type ProjectRowInput = Omit<ProjectRow, "created_at" | "updated_at">;
+export type ProjectRowInput = Omit<ProjectRow, "created_at" | "updated_at" |"deleted_at">;
 
 export function rowToProject(row: ProjectRow): AdminProject {
   return {

@@ -86,6 +86,8 @@ function labelFor(href: string): string {
   if (path === "/projects/new") return "Creating Project";
   if (path.startsWith("/projects/") && path.endsWith("/translate"))
     return "Translation";
+  if (path === "/deleted") return "Deleted projects";
+
   if (path.startsWith("/projects/")) return "Project editor";
   if (path === "/profile/translate") return "Profile translation";
   if (path === "/dashboard") return "Dashboard";
@@ -207,7 +209,7 @@ export default function TransitionProvider({
 
           if (!(await arrived))
             setNotice("The page took too long to load. Please try again.");
-        } catch(error) {
+        } catch (error) {
           setNotice(
             error instanceof TransitionError
               ? error.message

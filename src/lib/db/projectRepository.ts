@@ -1,5 +1,6 @@
 import {
   AdminProject,
+  DeletedProject,
   ProjectArchitectureSection,
   ProjectBasic,
   ProjectCover,
@@ -256,23 +257,50 @@ export class DeletedProjectExistsError extends Error {
   }
 }
 
-export async function listDeletedProjects(): Promise<AdminProject[]> {
-  const { data, error } = await getSupabase()
+export async function listDeletedProjects(): Promise<DeletedProject[]> {
+   const { data, error } = await getSupabase()
     .from("projects")
-    .select("*")
+    .select("id, slug, title, year, category, deleted_at")
     .eq("status", "deleted")
-    .order("updated_at", { ascending: false })
-    .returns<ProjectRow[]>();
+    .order("deleted_at", { ascending: false })
+    .returns<
+      {
+        id: string;
+        slug: string;
+        title: string;
+        year: number;
+        category: string;
+        deleted_at: string;
+      }[]
+    >();
+
   if (error) {
     throw new Error(`Failed to read the deleted projects ${error.message}`);
   }
-  return data.map(rowToProject);
+  return data.map((row) => ({
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    year: row.year,
+    category: row.category,
+    deletedAt: row.deleted_at,
+  }));
+}
+
+export async function countDeletedProjects():Promise<number>{
+  const {count,error}= await getSupabase().from("projects").select("id",{count:"exact",head:true}).eq("status","deleted")
+
+  if(error){
+    throw new Error(`Failed to read the amount of deleted projects: ${error.message}`)
+  }
+
+  return count ?? 0
 }
 
 export async function softDeleteProject(id: string): Promise<boolean> {
   const { data, error } = await getSupabase()
     .from("projects")
-    .update({ status: "deleted" })
+    .update({ status: "deleted", deleted_at: new Date().toISOString() })
     .eq("id", id)
     .neq("status", "deleted")
     .select("id")
@@ -286,13 +314,14 @@ export async function softDeleteProject(id: string): Promise<boolean> {
 }
 
 export async function restoreProject(id:string):Promise<boolean>{
-  const {data,error}=  await getSupabase().from("projects")
-    .update({ status: "draft" })
+  const { data, error } = await getSupabase()
+    .from("projects")
+    .update({ status: "draft", deleted_at: null })
     .eq("id", id)
     .eq("status", "deleted")
     .select("id")
     .maybeSingle<{ id: string }>();
-
+    
     if(error){
       throw new Error(`Failed to restore Project : ${error.message}`)
     }

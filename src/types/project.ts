@@ -90,3 +90,7 @@ export type ProjectArchitectureSection = {
 };
 
 export type ProjectCover = Pick<Project, "thumbnail" | "heroImage">;
+
+export type DeletedProject = Pick<AdminProject, "id" | "slug" | "title" | "year" | "category"> & {
+  deletedAt:string
+}
